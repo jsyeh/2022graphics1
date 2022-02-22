@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1514140580 source:c:\users\administrator\desktop\week01_opengl\main.c
+	<windows.h>
+	<gl/gl.h>
+
