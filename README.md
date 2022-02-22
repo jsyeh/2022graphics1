@@ -1,8 +1,27 @@
 # 2022graphics1
 
-```
-GitHub 備份程式
+## 第一個 OpenGL 程式
 
+0. CodeBlocks 17.12 mingw 裝好
+1. File-New-Project, 選 OpenGL 專案
+2. 在[點點點]的目錄,選「桌面」,Projectsje nir  01_OPENGL
+3. 下一步下一步, 完成後, Build & Run
+4. 可以看到彩色旋轉的三角形
+
+## 第一個 GLUT 專案
+
+1. Moodle 下載 freeglut ... zip
+2. 解壓縮 桌面 freeglut目錄
+3. 桌面 freeglut 的 lib 裡面有 libfreeglut.a 把它複製,改成 libglut32.a 才能讓我們的 CodeBlocks 的 GLUT專案連結使用
+
+4. CodeBlocks: File-New-Project, 選 GLUT專案
+5. 取名 week01_GLUT
+6. 設定 GLUT 目錄 C:\Users\?????\Desktop\freeglut
+7. Build & Run, 可看到 6個紅色的東西在轉動
+
+
+## GitHub 備份程式
+```
 0. 登入 GitHub.com
 1. New repo 新增專案倉庫
 1.1. 取名 2022graphics
