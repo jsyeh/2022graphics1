@@ -4,7 +4,7 @@
 
 0. CodeBlocks 17.12 mingw 裝好
 1. File-New-Project, 選 OpenGL 專案
-2. 在[點點點]的目錄,選「桌面」,Projectsje nir  01_OPENGL
+2. 在[點點點]的目錄,選「桌面」,Projects專案名存成 week01_OPENGL
 3. 下一步下一步, 完成後, Build & Run
 4. 可以看到彩色旋轉的三角形
 
