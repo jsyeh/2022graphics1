@@ -135,17 +135,17 @@ const GLfloat high_shininess[] = { 100.0f };
 
 /* Program entry point */
 
-int main(int argc, char *argv[])
+int main(int argc, char *argv[]) ///要這行
 {
-    glutInit(&argc, argv);
+    glutInit(&argc, argv); ///要這行
     glutInitWindowSize(640,480);
     glutInitWindowPosition(10,10);
-    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);///要這行
 
-    glutCreateWindow("GLUT Shapes");
+    glutCreateWindow("GLUT Shapes"); ///要這行
 
     glutReshapeFunc(resize);
-    glutDisplayFunc(display);
+    glutDisplayFunc(display); ///要這行
     glutKeyboardFunc(key);
     glutIdleFunc(idle);
 
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
     glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
     glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
 
-    glutMainLoop();
+    glutMainLoop(); ///要這行
 
     return EXIT_SUCCESS;
 }
