@@ -1,3 +1,7 @@
+# CodeBlocks UI files
+*.depend
+*.layout
+
 # Prerequisites
 *.d
 
