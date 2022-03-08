@@ -178,3 +178,344 @@ int main(int argc, char** argv) ///main()主函式 進階版
 
 再按綠色的 Commit 確認你的修改
 
+
+# Week03
+
+0. 開啟 blogger 寫今天的課堂作業
+   2022graphicsA.blogspot.com
+
+1. 範例 https://jsyeh.org/3dcg10/
+1.1. 下載 data, win32
+windows.zip => 下載\windows\Transformation.exe
+data.zip =>    下載\windows\data\模型.obj
+1.2. 執行 Transformation.exe 
+   (右上角)右鍵:換模型
+   (下方)拖曳綠色的數值
+
+2. step01-2 File-New-Project,GLUT, Project: week03_translate
+2.1. ...桌面, 
+2.2. freeglut要裝好: 解壓縮,改lib\libglut32.a
+
+
+## step01-0 sin() cos() 畫圓
+step01-0_早到的同學有福了, 老師為了讓同學可以寫出很棒的HW2,所以看了去年前年學長姐的作業,讓大家先有一個概念。但怎麼做的呢,老師馬上示範怎麼畫出小小兵給大家看,程式碼就只有一頁,利用 cos()及 sin() 來畫出圓形,利用for迴圈來控制角度,利用函式myCircle(float r) 來簡化程式, 利用 myCircle2(float x, float y, float r) 不同座標畫
+
+```C++
+///把上週的程式 copy進來
+#include <GL/glut.h>
+#include <math.h>///sin(), cos()
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glColor3f( 1,1,0 );
+    glBegin(GL_POLYGON);
+    for(float a=0; a<3.1415926*2; a+=0.01){
+        glVertex2f( cos(a), sin(a) );
+    }///要畫三角函數
+    glEnd();
+    glutSwapBuffers();
+}
+int main(int argc, char**argv)
+{
+    glutInit( &argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
+    glutCreateWindow("week03 作業2想加分");
+
+    glutDisplayFunc( display );
+    glutMainLoop();
+}
+```
+
+```C++
+///把上週的程式 copy進來
+#include <GL/glut.h>
+#include <math.h>///sin(), cos()
+void myCircle( float r )
+{
+    glBegin(GL_POLYGON);
+    for(float a=0; a<3.1415926*2; a+=0.01){
+        glVertex2f( r*cos(a), r*sin(a) );
+    }///要畫三角函數
+    glEnd();
+}
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glColor3f( 1,1,0 );
+    myCircle(2);
+
+    glColor3f( 0.6 ,0.6 ,0.6 );
+    myCircle(0.6);
+
+    glColor3f( 1,1,1);
+    myCircle(0.45);
+
+    glColor3f( 0,0,0);
+    myCircle(0.3);
+
+    glutSwapBuffers();
+}
+int main(int argc, char**argv)
+{
+    glutInit( &argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
+    glutCreateWindow("week03 作業2想加分");
+
+    glutDisplayFunc( display );
+    glutMainLoop();
+}
+```
+
+```C++
+///把上週的程式 copy進來
+#include <GL/glut.h>
+#include <math.h>///sin(), cos()
+void myCircle( float x, float y, float r )
+{
+    glBegin(GL_POLYGON);
+    for(float a=0; a<3.1415926*2; a+=0.01){
+        glVertex2f( x+r*cos(a), y+r*sin(a) );
+    }///要畫三角函數
+    glEnd();
+}
+void myCircle2( float x, float y, float r )
+{
+    glBegin(GL_POLYGON);
+    for(float a=0; a<3.1415926*2; a+=0.01){
+        glVertex2f( x+2*r*cos(a), y+r*sin(a) );
+    }///要畫三角函數
+    glEnd();
+}
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glColor3f( 1,1,0 );
+    myCircle(0, 0, 2);
+
+    glColor3f( 0.6 ,0.6 ,0.6 );
+    myCircle(0, 0, 0.6);
+
+    glColor3f( 1,1,1);
+    myCircle(0, 0, 0.45);
+
+    glColor3f( 0,0,0);
+    myCircle(0, 0, 0.3);
+
+    glColor3f( 1,0,0);
+    myCircle2(0.8, -0.6, 0.1);
+    myCircle2(-0.8, -0.6, 0.1);
+
+    glutSwapBuffers();
+}
+int main(int argc, char**argv)
+{
+    glutInit( &argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
+    glutCreateWindow("week03 作業2想加分");
+
+    glutDisplayFunc( display );
+    glutMainLoop();
+}
+```
+
+## step01-1 介紹 Translate
+step01-1_今天上課的主題是移動Translate 這個英文單字 (上週教單字Vertex頂點), 接下來到老師的網頁下載 data.zip 及 windows.zip 並正確解壓縮後,可以跑今天的範例 Transformation.exe 可利用 mouse 來選模型, 利用drag來調整綠色的數值
+
+## step01-2 黃色茶壼
+step01-2_接下來想要實作今天Translate主題的程式,先把上週的黃色茶壼 程式碼拿來用
+```C++
+#include <GL/glut.h>
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glColor3f(1,1,0);///黃色
+    glutSolidTeapot(0.3);///茶壼
+    glutSwapBuffers();
+}
+int main(int argc, char** argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE|GLUT_DEPTH);
+    glutCreateWindow("week03 移動");
+    glutDisplayFunc(display);
+    glutMainLoop();
+}
+```
+
+## step02-1 移動黃色茶壼
+step02-1_有了上週的黃色茶壼範例,加入今天教的glTranslatef(x,y,z) 便可以移動。不過,好像移動時,會像鬼故事一樣,越移越遠,因為移動會累積。所以要用glPushMatrix()備份矩陣, glPopMatrix()還原矩陣,備份起來,便能確認我們的移動不會殘留
+
+```C++
+#include <GL/glut.h>
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glPushMatrix();///備份矩陣 (備份舊的位置)
+        ///移動會累積,因為它會修改矩陣
+        glTranslatef(0.5, 0.5, 0);///右上角
+        glColor3f(1,1,0);///黃色
+        glutSolidTeapot(0.3);///茶壼
+    glPopMatrix();///還原矩陣 (還原舊的位置)
+    glutSwapBuffers();
+}
+int main(int argc, char** argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE|GLUT_DEPTH);
+    glutCreateWindow("week03 移動");
+    glutDisplayFunc(display);
+    glutMainLoop();
+}
+```
+
+## step02-2 利用函式,做很多的移動
+step02-2_有了剛剛的程式,便能畫出更多的茶壼。使用大一教過的「自訂函式」自己發明myTeapot(float x, float y) 可以在不同的地方畫茶壼。接下來便可以 myTeapot(0.5, 0.5); myTeapot(0.5, -0.5); myTeapot(-0.5, -0.5); myTeapot(-0.5, 0.5); 在不同地方畫很多個
+
+```C++
+#include <GL/glut.h>
+void myTeapot(float x, float y)
+{
+    glPushMatrix();///備份矩陣 (備份舊的位置)
+        ///移動會累積,因為它會修改矩陣
+        //glTranslatef(0.5, 0.5, 0);///右上角
+        glTranslatef(x, y, 0);
+        glColor3f(1,1,0);///黃色
+        glutSolidTeapot(0.3);///茶壼
+    glPopMatrix();///還原矩陣 (還原舊的位置)
+}
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    myTeapot( 0.5, 0.5 );
+    myTeapot( 0.5, -0.5 );
+    myTeapot( -0.5, -0.5 );
+    myTeapot( -0.5, 0.5 );
+    glutSwapBuffers();
+}
+int main(int argc, char** argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE|GLUT_DEPTH);
+    glutCreateWindow("week03 移動");
+    glutDisplayFunc(display);
+    glutMainLoop();
+}
+```
+
+## step02-3 利用 mouse 移動黃色茶壼
+step02-3_今天另一個主題,是利用mouse滑鼠來寫程式,可以使用glutMouseFunc(mouse)事件,註冊 void mouse(int button, int state, int x, int y) 函式,來讓mouse事件發生時,會叫用到我們的mouse()函式。這樣我們可以用某個座標換算公式,來算出-1到+1的座標,也能用在作業2中
+
+```C++
+#include <GL/glut.h>
+float mouseX=0, mouseY=0;///新加的
+void myTeapot(float x, float y)
+{
+    glPushMatrix();///備份矩陣 (備份舊的位置)
+        glTranslatef(x, y, 0);
+        glColor3f(1,1,0);///黃色
+        glutSolidTeapot(0.3);///茶壼
+    glPopMatrix();///還原矩陣 (還原舊的位置)
+}
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    myTeapot(   (mouseX-150)/150.0, -(mouseY-150)/150.0 );///新加的
+    glutSwapBuffers();
+}
+void mouse( int button, int state, int x, int y )
+{
+    mouseX=x; mouseY=y;///新加的
+}
+int main(int argc, char** argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE|GLUT_DEPTH);
+    glutCreateWindow("week03 移動");
+
+    glutDisplayFunc(display);
+    glutMouseFunc(mouse);///新加的 滑鼠事件
+
+    glutMainLoop();
+}
+```
+
+## step03-1 解釋 mouse()函式與座標換算
+step03-1_剛剛mouse()的參數是什麼意思呢, 它的座標系統不是3D座標系統,而是window視窗的座標系統。老師教口訣「減一半、除一半。y要反過來」便可以換算到3D的世界。
+
+```C++
+///week03_mouse_help_hw2
+#include <GL/glut.h>
+#include <stdio.h>///printf()印東西用的
+float mouseX=0, mouseY=0;///新加的
+void myTeapot(float x, float y)
+{
+    glPushMatrix();///備份矩陣 (備份舊的位置)
+        glTranslatef(x, y, 0);
+        glColor3f(25/255.0 , 208/255.0 , 32/255.0);///0...1 要除/255.0
+        glutSolidTeapot(0.1);///茶壼
+    glPopMatrix();///還原矩陣 (還原舊的位置)
+}
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    myTeapot(   (mouseX-150)/150.0, -(mouseY-150)/150.0 );///新加的
+    glutSwapBuffers();
+}
+void mouse( int button, int state, int x, int y )
+{
+    printf("%d %d %d %d\n", button, state, x, y);
+    mouseX=x; mouseY=y;///新加的
+}
+int main(int argc, char** argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE|GLUT_DEPTH);
+    glutCreateWindow("week03 移動");
+
+    glutDisplayFunc(display);
+    glutMouseFunc(mouse);///新加的 滑鼠事件
+
+    glutMainLoop();
+}
+```
+
+## step03-2 利用 mouse 來印出程式(頂點座標)
+step03-2_最後,可以利用mouse事件,配合 printf()來印出程式碼, 之後便能把座標換算的程式碼拿來畫圖囉
+
+```C++
+///week03_mouse_help_hw2
+#include <GL/glut.h>
+#include <stdio.h>///printf()印東西用的
+float mouseX=0, mouseY=0;///新加的
+void myTeapot(float x, float y)
+{
+    glPushMatrix();///備份矩陣 (備份舊的位置)
+        glTranslatef(x, y, 0);
+        glColor3f(25/255.0 , 208/255.0 , 32/255.0);///0...1 要除/255.0
+        glutSolidTeapot(0.1);///茶壼
+    glPopMatrix();///還原矩陣 (還原舊的位置)
+}
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    ///myTeapot(   (mouseX-150)/150.0, -(mouseY-150)/150.0 );///新加的
+    glutSwapBuffers();
+}
+void mouse( int button, int state, int x, int y )
+{
+    ///printf("%d %d %d %d\n", button, state, x, y);
+    printf("  glVertex2f( (%d-150)/150.0, -(%d-150)/150.0 );\n", x,y);
+    mouseX=x; mouseY=y;///新加的
+}
+int main(int argc, char** argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE|GLUT_DEPTH);
+    glutCreateWindow("week03 移動");
+
+    glutDisplayFunc(display);
+    glutMouseFunc(mouse);///新加的 滑鼠事件
+
+    glutMainLoop();
+}
+```
