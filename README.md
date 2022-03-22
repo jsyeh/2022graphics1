@@ -519,3 +519,238 @@ int main(int argc, char** argv)
     glutMainLoop();
 }
 ```
+
+
+
+# Week05
+
+0. 老師介紹 電腦圖學之父
+Ivan Sutherland 的 Sketchpad影片
+https://www.youtube.com/watch?v=6orsmFndx_o
+介紹畢業時論文發表的小八卦
+
+介紹他的老師 Shannon 的
+Ultimate machine (useless machine)
+https://www.youtube.com/watch?v=cZ34RDn34Ws
+
+```
+1. jsyeh.org/3dcg10
+windows.zip => 下載\windows\Transformation.exe
+data.zip    => 下載\windows\data\模型
+下面區域,可以交換2行程式碼(移動、轉動)
+會有自轉、公轉的效果。
+
+2. 介紹完 移動、旋轉、縮放 對映 Maya qwer鍵
+2.1. 先把 freeglut裝,改 lib\libglut32.a
+2.2. File-New-Project, 新的GLUT專案
+2.3. 把每次的 10行 copy 上來
+```
+
+## step01-0
+介紹電腦圖學之父 Ivan Sutherland 及他的 Sketchpad 作品, 介紹他畢業論文發表的八卦, 介紹他的老師密碼學大師Shannon與他的Ultimate Machine (Useless Machine)。帶大家重新複習Transformation.exe裡面的內容,尤其是Translate及Rotate兩行相反時,分別有自轉、公轉的效果.zip
+
+## step01-1
+接下來為了模仿 Maya動畫軟體的keyboard+mouse操作,我們要寫今天的主角 glutKeyboardFunc(keyboard) 及對應的 void keyboard(unsigned char key, int x, int y)函式,印出來.zip
+
+```C++
+#include <GL/glut.h>
+#include <stdio.h>
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glColor3f(1,1,0);///黃色的
+    glutSolidTeapot( 0.3 );///茶壼
+    glutSwapBuffers();
+}
+void keyboard( unsigned char key, int x, int y )
+{
+    printf("你按下了 %c 在 %d %d 座標\n", key, x, y );
+}
+int main(int argc, char**argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE|GLUT_DEPTH);
+    glutCreateWindow("week05 keyboard");
+
+    glutDisplayFunc(display);
+    glutKeyboardFunc(keyboard);///今天的主角
+    glutMainLoop();
+}
+```
+## step02-1
+接續剛剛的 week05_keyboard 我們新增一個專案,叫 week05_keyboard_mouse_motion 在裡面複習本週的keyboard(),上上週的mouse(),上週的motion()
+
+```C++
+///接續剛剛的 week05_keyboard 變成 keyboard+mouse+motion
+#include <GL/glut.h>
+#include <stdio.h>
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+150)/150.0 ,z);
+    glColor3f(1,1,0);///黃色的
+    glutSolidTeapot( 0.3 );///茶壼
+    glutSwapBuffers();
+}
+void keyboard( unsigned char key, int mouseX, int mouseY )
+{
+}
+void mouse(int button, int state, int mouseX, int mouseY )
+{
+}
+void motion(int mouseX, int mouseY)
+{
+}
+int main(int argc, char**argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE|GLUT_DEPTH);
+    glutCreateWindow("week05 keyboard");
+
+    glutDisplayFunc(display);
+    glutKeyboardFunc(keyboard);///今天的主角
+    glutMouseFunc(mouse);///上上週的主角
+    glutMotionFunc(motion);///上週的主角
+    glutMainLoop();
+}
+```
+
+## step02-2
+先做移動的部分,只利用motion裡面,配合 x += (mouseX-oldX) 及 y += (mouseY-oldY) 並更新 oldX=mouseX; oldY=mouseY; 來讓 x 及 y 可以正確增減。最後我們利用減一半、除一半、y要倒過來的公式,完成移動的任務,其中 display()裡還要有 glPushMatrix()備份矩陣 及 glPopMatrix()還原矩陣
+
+```C++
+#include <GL/glut.h>
+#include <stdio.h>
+float x=150, y=150, z=0;
+int oldX=0, oldY=0;
+void display()
+{
+    glClearColor( 0.5, 0.5, 0.5, 1 );///R,G,B,A 其中A半透明功能,目前沒開
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glPushMatrix();///備份矩陣
+        glTranslatef( (x-150)/150.0 , -(y-150)/150.0 ,z);
+        glColor3f(1,1,0);///黃色的
+        glutSolidTeapot( 0.3 );///茶壼
+    glPopMatrix();///還原矩陣
+    glutSwapBuffers();
+}
+void keyboard( unsigned char key, int mouseX, int mouseY )
+{
+}
+void mouse(int button, int state, int mouseX, int mouseY )
+{
+}
+void motion(int mouseX, int mouseY)
+{
+    x += (mouseX-oldX);  y += (mouseY-oldY);
+    oldX = mouseX;       oldY = mouseY;
+    display();
+}
+int main(int argc, char**argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE|GLUT_DEPTH);
+    glutCreateWindow("week05 keyboard");
+
+    glutDisplayFunc(display);
+    glutKeyboardFunc(keyboard);///今天的主角
+    glutMouseFunc(mouse);///上上週的主角
+    glutMotionFunc(motion);///上週的主角
+    glutMainLoop();
+}
+```
+
+## step02-3
+剛剛只用motion其實有問題,有點不連續。因此,用上週教在 mouse()裡面設定 oldX=mouseX; oldY=mouseY; 去記錄下按下mouse時的位置,才能相對移動正確
+
+```C++
+#include <GL/glut.h>
+#include <stdio.h>
+float x=150, y=150, z=0;
+int oldX=0, oldY=0;
+void display()
+{
+    glClearColor( 0.5, 0.5, 0.5, 1 );///R,G,B,A 其中A半透明功能,目前沒開
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glPushMatrix();///備份矩陣
+        glTranslatef( (x-150)/150.0 , -(y-150)/150.0 ,z);
+        glColor3f(1,1,0);///黃色的
+        glutSolidTeapot( 0.3 );///茶壼
+    glPopMatrix();///還原矩陣
+    glutSwapBuffers();
+}
+void keyboard( unsigned char key, int mouseX, int mouseY )
+{
+}
+void mouse(int button, int state, int mouseX, int mouseY )
+{///為了解決瞬間移動的錯誤,我們改用正確的方法
+    oldX = mouseX; oldY = mouseY;
+}
+void motion(int mouseX, int mouseY)
+{
+    x += (mouseX-oldX);  y += (mouseY-oldY);
+    oldX = mouseX;       oldY = mouseY;
+    display();
+}
+int main(int argc, char**argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE|GLUT_DEPTH);
+    glutCreateWindow("week05 keyboard");
+
+    glutDisplayFunc(display);
+    glutKeyboardFunc(keyboard);///今天的主角
+    glutMouseFunc(mouse);///上上週的主角
+    glutMotionFunc(motion);///上週的主角
+    glutMainLoop();
+}
+```
+
+## step03-1
+把程式碼修改成只處理 glScalef(scale, scale, scale) 的部分,利用 float scale=1.0這個變數,往右拖會慢慢放大1%,往左拖會慢慢縮小1%, 每天多努力1%,成長看得見
+
+```C++
+#include <GL/glut.h>
+#include <stdio.h>
+float x=150, y=150, z=0, scale=1.0;
+int oldX=0, oldY=0;
+void display()
+{
+    glClearColor( 0.5, 0.5, 0.5, 1 );///R,G,B,A 其中A半透明功能,目前沒開
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glPushMatrix();///備份矩陣
+        glTranslatef( (x-150)/150.0 , -(y-150)/150.0 ,z);
+        glScalef(scale, scale, scale);///都縮放成 scale倍
+        glColor3f(1,1,0);///黃色的
+        glutSolidTeapot( 0.3 );///茶壼
+    glPopMatrix();///還原矩陣
+    glutSwapBuffers();
+}
+void keyboard( unsigned char key, int mouseX, int mouseY )
+{
+}
+void mouse(int button, int state, int mouseX, int mouseY )
+{///為了解決瞬間移動的錯誤,我們改用正確的方法
+    oldX = mouseX; oldY = mouseY;
+}
+void motion(int mouseX, int mouseY)
+{
+    if( mouseX-oldX > 0 ) scale *= 1.01;
+    if( mouseX-oldX < 0 ) scale *= 0.99;
+    ///x += (mouseX-oldX);  y += (mouseY-oldY);
+    oldX = mouseX;       oldY = mouseY;
+    display();
+}
+int main(int argc, char**argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE|GLUT_DEPTH);
+    glutCreateWindow("week05 keyboard");
+
+    glutDisplayFunc(display);
+    glutKeyboardFunc(keyboard);///今天的主角
+    glutMouseFunc(mouse);///上上週的主角
+    glutMotionFunc(motion);///上週的主角
+    glutMainLoop();
+}
+```
