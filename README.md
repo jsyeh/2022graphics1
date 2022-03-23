@@ -194,6 +194,8 @@ int main(int argc, char** argv) ///main()主函式 進階版
 
 
 # Week03
+本週的上課範圍，是介紹Translate移動，也教大家如何利用 mouse 來操作、寫出能利用mouse的程式。
+另外在座標換算的部分，在HW2會需要將 Windows 的座標系統，換算成 OpenGL的座標系統，這樣便能在 mouse()函式裡，進行座標換算，方便製作我們的HW2 。
 
 每週學一個新單字，今天學到的單字是 Translate (移動)。
 
@@ -538,6 +540,7 @@ int main(int argc, char** argv)
 ```
 
 # Week04
+本週的上課範圍，是介紹Rotate旋轉，並且利用 mouse motion 函式，讓大家可以利用mouse的操作來控制物體的轉動，就像 Maya 課及 Unity課時使用的方式來轉動。
 
 每週學一個新單字，今天學到的單字是 Rotate (旋轉)。
 
