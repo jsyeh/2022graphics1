@@ -544,6 +544,182 @@ int main(int argc, char** argv)
 
 每週學一個新單字，今天學到的單字是 Rotate (旋轉)。
 
+```
+1. 主題: Rotate旋轉
+jsyeh.org/3dcg10 下載
+data.zip   =>下載\windows\data\一堆3D模型
+windows.zip=>下載\windows\Transformation.exe
+2. 測試 角度
+   glRotatef(角度, x, y, z);
+3. 最難的, 是不同的旋轉軸。
+```
+
+## step01-1
+介紹今天的主題「旋轉Rotate」先帶大家看課本的範例,解壓縮windows.zip並把 data.zip 正確放好,便能執行Transformation.exe 並試著改裡面的glRotatef(角度,....)
+
+## step01-2
+接下來要介紹各種不同的旋轉軸,像是如果旋轉軸是0,1,0向上的Y軸,那它怎麼轉呢。如果旋轉軸是1,0,0向右的X軸,它的轉法,是頭往前倒。如果旋轉軸是1,1,0向右上斜,那轉動時,右肩往前倒。最難理解的是0,0,1向著前面的Z軸,如果你有右手比讚,便容易想像它怎麼轉動。
+
+## step02-1
+我們再利用課本範例Transformation.exe測了最難理解的0,0,1的Z軸,如果改成0,0,-1的反方向,大家也要能知道它往哪裡轉。接下來我們承接上週的程式碼,改成用glRotatef(角度,x,y,z)來看茶壼轉動的狀況
+
+```C++
+///全刪,再從blog抄你的精簡10行程式
+#include <GL/glut.h>
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glPushMatrix();///備份矩陣
+        glRotatef(90, 0,0,1);
+        glutSolidTeapot(0.3);
+    glPopMatrix();///還原矩陣
+    glutSwapBuffers();
+}
+int main(int argc, char**argv)
+{
+    glutInit( &argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
+    glutCreateWindow("Week04 Rotate");
+
+    glutDisplayFunc(display);
+    glutMainLoop();
+}
+```
+
+## step_02-1b
+如何偽造時間。在Blog裡,其實可以設定你的時間。在GitHub裡,也可以設定你的時間。老師分享之前交作業時曾經修改email的時間, 去年在修英文課時,發現如果有缺交作業時,就會想放棄。如果能補交、保持完美,就會有動力繼續保持下去。大家可以試試,有問題可以問我。
+
+
+
+## step02-2
+剛剛的程式裡, glRotatef(90,0,0,1) 的角度是寫死固定。想要有互動的變化時, 可以使用 mouse motion 功能,要在 main() 裡註冊 glutMotionFunc(motion), 再寫你的 void motion(int x, int y) 裡面去修改 angle值,再用 display()重畫畫面, 其中glRotatef(angle, 0,0,1)
+
+
+```C++
+#include <GL/glut.h>
+float angle=0;
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glPushMatrix();///備份矩陣
+        glRotatef(angle, 0,0,1);
+        glutSolidTeapot(0.3);
+    glPopMatrix();///還原矩陣
+    glutSwapBuffers();
+}
+void motion(int x, int y)
+{
+    angle = x;
+    display();///重畫畫面
+}
+int main(int argc, char**argv)
+{
+    glutInit( &argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
+    glutCreateWindow("Week04 Rotate");
+
+    glutDisplayFunc(display);
+    glutMotionFunc(motion);///mouse motion動
+    glutMainLoop();
+}
+```
+
+備份、改GitHub時間
+```
+git clone https://github.com/jsyeh/2022graphics1
+
+git status (看到有紅色)
+git add .
+git status (確認變綠色)
+
+git config --global user.name jsyeh
+git config --global user.email jsyeh@mail.mcu.edu.tw
+
+
+git commit -m "add week04"   --date "2022-03-09 12:00:00"
+
+git push
+```
+
+
+## step03-1
+剛剛的 angle=x 的作法,會讓轉動很奇怪、不太連續, 原因是 angle設成x座標。老師使用一個很舊的笑話「大象放到冰箱裡」接下來,便利用這樣的觀念,把滑鼠按下去定錨oldX=x,之後移動時,angle+=(x-oldX), 最後再 oldX=x 再定一次錨
+
+
+```C++
+#include <GL/glut.h>
+float angle=0, oldX=0;
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glPushMatrix();///備份矩陣
+        glRotatef(angle, 0,0,1);
+        glutSolidTeapot(0.3);
+    glPopMatrix();///還原矩陣
+    glutSwapBuffers();
+}
+void motion(int x, int y)
+{
+    angle += (x-oldX);
+    oldX = x;
+    display();///重畫畫面
+}
+void mouse(int button, int state, int x, int y)
+{
+    oldX = x; ///定錨
+}
+int main(int argc, char**argv)
+{
+    glutInit( &argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
+    glutCreateWindow("Week04 Rotate");
+
+    glutDisplayFunc(display);
+    glutMotionFunc(motion);///mouse motion動
+    glutMouseFunc(mouse);///上週教: mouse按下去、放開來
+    glutMainLoop();
+}
+```
+
+## step03-2
+複習上週教的「用滑鼠寫程式」,,老師利用mouse()來印出程式碼,並把座標備份在mx[]及my[]裡面,配合N知道已經記錄了幾個座標。再於display()裡面,利用for迴圈,把這些座標利用GL_LINE_LOOP畫出來看。希望大家對於座標、座標換算、頂點、glBegin()等更有概念
+
+```C++
+///上週的複習
+#include <GL/glut.h>
+#include <stdio.h>
+int mx[1000],my[1000];///用來備份你的mouse的座標
+int N=0;///有幾個點按好了?
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glBegin(GL_LINE_LOOP);
+    for(int i=0; i<N; i++){
+        glVertex2f( (mx[i]-150)/150.0, -(my[i]-150)/150.0 );
+    }
+    glEnd();
+    glutSwapBuffers();
+}
+void mouse(int button, int state, int x, int y)
+{//  printf("%d %d %d %d\n", button, state, x, y);
+    if(state==GLUT_DOWN){///如果state是按下去0,才印程式碼
+        printf("    glVertex2f( (%d-150)/150.0, -(%d-150)/150.0 );\n", x, y);
+        N++;
+        mx[N-1]=x; my[N-1]=y;
+    }
+    display();///重畫
+}
+int main(int argc, char**argv)
+{
+    glutInit( &argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
+    glutCreateWindow("Week04 Rotate");
+
+    glutDisplayFunc(display);
+    glutMouseFunc(mouse);///上週教: mouse按下去、放開來
+    glutMainLoop();
+}
+```
 
 # Week05
 
