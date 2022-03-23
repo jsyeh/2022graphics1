@@ -3,6 +3,10 @@
 
 每週上課時，利用 Blog 寫課堂筆記的方式，來讓大家完成課堂作業。也會利用 Git 指令，帶大家將每週的程式上傳到 GitHub中。
 
+課堂作業 寫blog 評分的原因，是因為在程式的實作時，如果有親手做記錄，比較能理解「做了什麼」「為什麼做」「出來的效果如何」，而且之後遺忘時，還能有自己的筆記，用自己能理解、曾經努力記錄的方式來回憶。
+
+這樣之後上課時會比較順利，期末作品（整學期上課內容的整合）也會比較順利、不會負擔太大而放棄。
+
 # Week01
 介紹電腦圖學 OpenGL 的程式設計開發環境，用同學大一程式設計學過的 CodeBlocks 繼續延伸，了解如何利用 C/C++ 配合開發出 OpenGL 及 GLUT 的電腦圖學程式。之後同學也能在 Windows 的 Visual Studio 或是 Mac 的 Xcode 中，進行開發，程式碼都相同。
 
@@ -67,6 +71,9 @@ git commit -m "訊息"
 
 
 # Week02
+
+每週學一個新單字，今天學到的單字是 Vertex (頂點)。
+
 ## step01-1 跑別人的範例
 
 ```
@@ -188,6 +195,9 @@ int main(int argc, char** argv) ///main()主函式 進階版
 
 # Week03
 
+每週學一個新單字，今天學到的單字是 Translate (移動)。
+
+```
 0. 開啟 blogger 寫今天的課堂作業
    2022graphicsA.blogspot.com
 
@@ -202,7 +212,7 @@ data.zip =>    下載\windows\data\模型.obj
 2. step01-2 File-New-Project,GLUT, Project: week03_translate
 2.1. ...桌面, 
 2.2. freeglut要裝好: 解壓縮,改lib\libglut32.a
-
+```
 
 ## step01-0 sin() cos() 畫圓
 step01-0_早到的同學有福了, 老師為了讓同學可以寫出很棒的HW2,所以看了去年前年學長姐的作業,讓大家先有一個概念。但怎麼做的呢,老師馬上示範怎麼畫出小小兵給大家看,程式碼就只有一頁,利用 cos()及 sin() 來畫出圓形,利用for迴圈來控制角度,利用函式myCircle(float r) 來簡化程式, 利用 myCircle2(float x, float y, float r) 不同座標畫
@@ -527,10 +537,16 @@ int main(int argc, char** argv)
 }
 ```
 
+# Week04
+
+每週學一個新單字，今天學到的單字是 Rotate (旋轉)。
 
 
 # Week05
+
 本週的上課內容，是先介紹電腦圖學之父 Ivan Sutherland 的故事，並播放他博士畢業論文 Sketchpad 的展示影片（電視訪問的黑白畫面）。接下來便是利用這幾週上課教的移動、旋轉、縮放，配合這幾週教的 mouse, motion, keyboard等，讓大家看到整合在程式碼中的效果。下週將會照著繼續做。
+
+每週學一個新單字，今天學到的單字是 Scale (縮放)。
 
 0. 老師介紹 電腦圖學之父
 Ivan Sutherland 的 Sketchpad影片
