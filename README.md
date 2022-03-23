@@ -1,6 +1,13 @@
-# 2022graphics1
+# 資傳二甲電腦圖學 2022graphics1
+銘傳大學資傳系的電腦圖學課（Computer Graphics），會帶大家利用 OpenGL (Open Graphics Language) 實作，來學習電腦圖學的相關觀念。
+
+每週上課時，利用 Blog 寫課堂筆記的方式，來讓大家完成課堂作業。也會利用 Git 指令，帶大家將每週的程式上傳到 GitHub中。
 
 # Week01
+介紹電腦圖學 OpenGL 的程式設計開發環境，用同學大一程式設計學過的 CodeBlocks 繼續延伸，了解如何利用 C/C++ 配合開發出 OpenGL 及 GLUT 的電腦圖學程式。之後同學也能在 Windows 的 Visual Studio 或是 Mac 的 Xcode 中，進行開發，程式碼都相同。
+
+每週學一個新單字，今天學到的單字是 Graphics (圖學)。
+
 ## 第一個 OpenGL 程式
 
 0. CodeBlocks 17.12 mingw 裝好
@@ -523,6 +530,7 @@ int main(int argc, char** argv)
 
 
 # Week05
+本週的上課內容，是先介紹電腦圖學之父 Ivan Sutherland 的故事，並播放他博士畢業論文 Sketchpad 的展示影片（電視訪問的黑白畫面）。接下來便是利用這幾週上課教的移動、旋轉、縮放，配合這幾週教的 mouse, motion, keyboard等，讓大家看到整合在程式碼中的效果。下週將會照著繼續做。
 
 0. 老師介紹 電腦圖學之父
 Ivan Sutherland 的 Sketchpad影片
