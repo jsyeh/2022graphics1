@@ -1746,3 +1746,144 @@ int main(int argc, char**argv)
 }
 
 ```
+
+# Week08
+電腦圖學 Week08 2022-04-11
+1. 主題: 3D模型
+2. 主題: OBJ模型檔 (v vt vn f)
+3. 實作: glm.h glm.cpp (c)
+4. 期中考題: OpenGL必背10函式
+
+
+1. jsyeh.org/3dcg10 下載
+windows.zip => 下載\windows\Light Material.exe
+data.zip    => 下載\windows\data\ 3D模型
+source.zip 
+執行 Light Material.exe 今天的主角(打光/模型)
+
+## step01-1
+複習上次上課時的課本打光範例, 確定大家可以執行。裡面的 Light Material.exe 有用到「打光、模型」是今天的主角
+
+step01-2 實作看看!!! (GLUT的範例, source.zip 的範例)
+
+2. freeglut Moodle下載/安裝, lib\libglut32.a
+File-New-Project, GLUT專案, 偷它的程式 放 Notepad++
+
+## step01-3 了解 GLUT範例 sample.cpp 177行 做什麼事
+
+step01-3 了解 GLUT範例 sample.cpp 177行 做什麼事,其中有 include glut.h, 有介紹 GLUT callback 像是 display() mouse() motion() keyboard(), 有期中考題,像是 glPushMatrix()等, 重點是打光的陣列、打光的函式.zip
+
+TODO: 開blog
+```c++
+#include <GL/glut.h>
+```
+
+GLUT callback ? 會被 GLUT 呼叫的函式
+我們寫的那些display() keyboard() mouse() motion()函式
+
+```c++
+//期中考試題
+glPushMatrix();//備份矩陣
+  glTranslatef(x,y,z);//移動
+  glRotatef(角度, x,y,z);//轉動
+  glScalef(x,y,z);//縮放 (有50分)
+
+glPopMatrix();//還原矩陣
+```
+
+打光的程式碼: (1) 打光的陣列, (2) 打光的函式
+
+TODO: 寫 Blog (ing)
+
+## step01-4 從 GitHub 拿出上週的程式!!! week06_light 
+git 下載你上週的程式
+git clone 下來 或在你的專案資料夾裡 git pull
+把 week06_light\main.cpp 用 Notepad++ 開起來, copy
+paste 到 week08_model 的 main.cpp
+執行,會看到打光的黃色茶壼
+
+
+## step02-1 把 source.zip 看裡面的3個程式 glm.h glm.c lightmaterial.cpp, 拿裡面的程式來用,便能讀入3D模型
+
+step02-1_把 source.zip 看裡面的3個程式 glm.h glm.c 研究 lightmaterial.cpp, 拿裡面的程式來用,便能讀入3D模型, 要include 雙引號的 glm.h 要把 glm.c改檔名成glm.cpp 並加入專案, 再用 Notepad++研究學習lightmaterial.c的程式內容 .zip
+
+1. glm.h 我們要 include 它
+2. glm.c 改檔名 glm.cpp 要加入專案
+3. lightmaterial.cpp 用 Notepad++ 研究"學習"
+
+TODO: Blog (ing)
+```C++
+#include <GL/glut.h> //角括號,是系統的include裡 的檔案
+#include "glm.h" //雙引號,同目錄裡 的檔案
+```
+
+```C++
+GLMmodel* pmodel = NULL; //指到GLMmodel模型的指標,NULL代表還沒好
+```
+
+```C++
+void
+drawmodel(void)
+{
+    if (!pmodel) {
+	pmodel = glmReadOBJ("data/soccerball.obj");
+	if (!pmodel) exit(0);
+	glmUnitize(pmodel);
+	glmFacetNormals(pmodel);
+	glmVertexNormals(pmodel, 90.0);
+    }
+
+    glmDraw(pmodel, GLM_SMOOTH);
+}///用來畫3D模型的程式碼, "學習它"
+```
+
+## step02-2 畫 3D 模型檔
+step02-2_畫 3D 模型檔,要把 glutSolidTeapot()改成畫 drawmodel(), 要在下方Build Log 找你的 working dir 工作目錄 好像是 Desktop的freeglut的bin目錄, 在裡面放 data資料夾, 以便讀取 data的 soccerball.obj 模型, 再把glm.cpp 及 glm.h 放在 week08_model 目錄中, 再 Add files 把 glm.cpp 加到專案中.zip
+
+1. (用哪一行程式?) drawmodel() TODO: 在 display()取代 glutSolidTeapot()
+2. (檔案在哪裡?) 要在放 working dir 工作目錄裡!!!!
+3. (在 CodeBlocks下方 藍色 Build Log 說我們的工作目錄在...)
+4. (in C:\Users\...\Desktop\freeglut\bin\ )
+5. TODO: 剛剛下載的 下載\data.zip 裡面的 data資料夾,整包放在 "工作目錄"
+6. TODO: 把 glm.h 還有 glm.c (檔名改成 glm.cpp) 放到 week08_model 目錄
+7. 注意: 副檔名要看到才行!!!! 
+8. TODO: 在 week08_model 的專案中, Add 同目錄裡面的 glm.cpp
+
+## step02-3
+複習問問題
+
+
+## step03-1
+講解各種模形,可以自己改, 再把專案 week08_model File-Save Project存檔, 放到 GitHub 裡
+
+## step03-2 介紹3D模型相關資料
+1. Wavefront OBJ 檔 https://zh.wikipedia.org/wiki/Wavefront_.obj%E6%96%87%E4%BB%B6
+2. Wavefront OBJ 英文介紹較詳細https://en.wikipedia.org/wiki/Wavefront_.obj_file
+3. OBJ vs. MTL 檔, 其中 .mtl 檔 material (m t    l)
+4. v 是 vertex, vn 是 vertex normal, vt 是 vertex texture coordinate, f 是 face 點線面的面
+
+## step03-3
+期中考 OpenGL 必背10函式 模擬練習
+
+```
+jsyeh.org/gl
+是OpenGL的GL
+```
+
+考試練習：請在下方「淡黃文字區」輸入老師教的 OpenGL必背10函式(11行程式)。 \
+拼字(含大小寫)必須完全正確、參數的數目也需要正確，要合文法、能compile編譯，並記得加中文註解。 \
+完成後，點擊按鈕【按我評分】自行模擬評分
+
+```
+1.  glPushMatrix(); //備份矩陣
+2.    glTranslatef(x,y,z);//移動
+3.    glRotatef(角度, x,y,z);//轉動
+4.    glScalef(x,y,z);//縮放
+5.    glBegin(GL_POLYGON);//開始畫
+6.      glColor3f(r,g,b);//色彩
+7.      glTexCoord2f(tx, ty);//貼圖座標
+8.      glNormal3f( nx,ny,nz);//打光法向量
+9.      glVertex3f(x,y,z);//頂點
+10.   glEnd();//結束畫
+11. glPopMatrix(); //還原矩陣
+```
