@@ -1018,79 +1018,42 @@ glLightfv(GL_LIGHT0, GL_POSITION, 陣列)
 講解完程式碼, 接下來是偷程式碼時間。File-New-Project 選 GLUT專案, 就好了。接下來Ctrl-F找關鍵字light 找到 (1) 有陣列宣告、(2)有函式呼叫 就這樣。
 
 
-
 實作時間:
-
 0. freeglut 裝好, lib 改一下 libglut32.a
-
 1. File-New-Project, GLUT專案 沒了....
-
 2. 從 GLUT 範例 偷程式碼!!! Ctrl-F 找 light
-
 3. (1) 有陣列宣告、(2)有函式呼叫
 
-
-
 ```C++
-
 const GLfloat light_ambient[]  = { 0.0f, 0.0f, 0.0f, 1.0f };
-
 const GLfloat light_diffuse[]  = { 1.0f, 1.0f, 1.0f, 1.0f };
-
 const GLfloat light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-
 const GLfloat light_position[] = { 2.0f, 5.0f, 5.0f, 0.0f };
 
-
-
 const GLfloat mat_ambient[]    = { 0.7f, 0.7f, 0.7f, 1.0f };
-
 const GLfloat mat_diffuse[]    = { 0.8f, 0.8f, 0.8f, 1.0f };
-
 const GLfloat mat_specular[]   = { 1.0f, 1.0f, 1.0f, 1.0f };
-
 const GLfloat high_shininess[] = { 100.0f };
-
 ```
 
-
-
 ```C++
-
     glEnable(GL_DEPTH_TEST);
-
     glDepthFunc(GL_LESS);
 
-
-
     glEnable(GL_LIGHT0);
-
     glEnable(GL_NORMALIZE);
-
     glEnable(GL_COLOR_MATERIAL);
-
     glEnable(GL_LIGHTING);
 
-
-
     glLightfv(GL_LIGHT0, GL_AMBIENT,  light_ambient);
-
     glLightfv(GL_LIGHT0, GL_DIFFUSE,  light_diffuse);
-
     glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
-
-
     glMaterialfv(GL_FRONT, GL_AMBIENT,   mat_ambient);
-
     glMaterialfv(GL_FRONT, GL_DIFFUSE,   mat_diffuse);
-
     glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
-
     glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
-
 ```
 
 ## step02-1
@@ -1098,107 +1061,56 @@ const GLfloat high_shininess[] = { 100.0f };
 結合之前 GLUT 10行茶壼程式, 配合打光的程式碼 8+10行, 做出打光的茶壼, 其中光的位置有稍微調一下z的值
 
 
-
-
-
 ```C++
-
 #include <GL/glut.h>
-
 const GLfloat light_ambient[]  = { 0.0f, 0.0f, 0.0f, 1.0f };
-
 const GLfloat light_diffuse[]  = { 1.0f, 1.0f, 1.0f, 1.0f };
-
 const GLfloat light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-
 const GLfloat light_position[] = { 2.0f, 5.0f, -5.0f, 0.0f };
 
-
-
 const GLfloat mat_ambient[]    = { 0.7f, 0.7f, 0.7f, 1.0f };
-
 const GLfloat mat_diffuse[]    = { 0.8f, 0.8f, 0.8f, 1.0f };
-
 const GLfloat mat_specular[]   = { 1.0f, 1.0f, 1.0f, 1.0f };
-
 const GLfloat high_shininess[] = { 100.0f };
 
 void display()
-
 {
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         glColor3f(1, 1, 0);
-
         glutSolidTeapot( 0.3 );
-
     glutSwapBuffers();
-
 }
 
 int main( int argc, char** argv )
-
 {
-
     glutInit( &argc, argv);
-
     glutInitDisplayMode( GLUT_DOUBLE | GLUT_DEPTH );
-
     glutCreateWindow("week06 light");
-
-
 
     glutDisplayFunc(display);
 
-
-
     ///偷來的程式,要放 glutCreateWindow()之後,才會有效
-
     glEnable(GL_DEPTH_TEST);
-
     glDepthFunc(GL_LESS);
 
-
-
     glEnable(GL_LIGHT0);
-
     glEnable(GL_NORMALIZE);
-
     glEnable(GL_COLOR_MATERIAL);
-
     glEnable(GL_LIGHTING);
 
-
-
     glLightfv(GL_LIGHT0, GL_AMBIENT,  light_ambient);
-
     glLightfv(GL_LIGHT0, GL_DIFFUSE,  light_diffuse);
-
     glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
-
-
     glMaterialfv(GL_FRONT, GL_AMBIENT,   mat_ambient);
-
     glMaterialfv(GL_FRONT, GL_DIFFUSE,   mat_diffuse);
-
     glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
-
     glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
-
     ///放在 glutMainLoop()之前
 
-
-
     glutMainLoop();///卡在這裡,之後的程式,都不會執行到
-
 }
-
-
-
 ```
 
 
@@ -1212,153 +1124,84 @@ week06_light_mouse_motion_rotate
 ```C++
 
 #include <GL/glut.h>
-
 #include <stdio.h>
-
 const GLfloat light_ambient[]  = { 0.0f, 0.0f, 0.0f, 1.0f };
-
 const GLfloat light_diffuse[]  = { 1.0f, 1.0f, 1.0f, 1.0f };
-
 const GLfloat light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-
 const GLfloat light_position[] = { 2.0f, 5.0f, -5.0f, 0.0f };
 
-
-
 const GLfloat mat_ambient[]    = { 0.7f, 0.7f, 0.7f, 1.0f };
-
 const GLfloat mat_diffuse[]    = { 0.8f, 0.8f, 0.8f, 1.0f };
-
 const GLfloat mat_specular[]   = { 1.0f, 1.0f, 1.0f, 1.0f };
-
 const GLfloat high_shininess[] = { 100.0f };
 
-
-
 float x=150, y=150, z=0, scale=1.0;
-
 int oldX=0, oldY=0;
 
 void display()
-
 {
-
     glClearColor( 0.5, 0.5, 0.5, 1 );///R,G,B,A 其中A半透明功能,目前沒開
-
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-
     glPushMatrix();///備份矩陣
-
         glTranslatef( (x-150)/150.0 , -(y-150)/150.0 ,z);
-
         glScalef(scale, scale, scale);///都縮放成 scale倍
-
         glColor3f(1,1,0);///黃色的
-
         glutSolidTeapot( 0.3 );///茶壼
-
     glPopMatrix();///還原矩陣
-
     glutSwapBuffers();
-
 }
 
 void keyboard( unsigned char key, int mouseX, int mouseY )
-
 {
-
 }
 
 void mouse(int button, int state, int mouseX, int mouseY )
-
 {///為了解決瞬間移動的錯誤,我們改用正確的方法
-
     oldX = mouseX; oldY = mouseY;
-
 }
 
 void motion(int mouseX, int mouseY)
-
 {
-
     if( mouseX-oldX > 0 ) scale *= 1.01;
-
     if( mouseX-oldX < 0 ) scale *= 0.99;
-
     ///x += (mouseX-oldX);  y += (mouseY-oldY);
-
     oldX = mouseX;       oldY = mouseY;
-
     display();
-
 }
 
 int main(int argc, char**argv)
-
 {
-
     glutInit(&argc, argv);
-
     glutInitDisplayMode(GLUT_DOUBLE|GLUT_DEPTH);
-
     glutCreateWindow("week05 keyboard");
 
-
-
     glutDisplayFunc(display);
-
     glutKeyboardFunc(keyboard);///今天的主角
-
     glutMouseFunc(mouse);///上上週的主角
-
     glutMotionFunc(motion);///上週的主角
 
-
-
     ///偷來的程式,要放 glutCreateWindow()之後,才會有效
-
     //glEnable(GL_DEPTH_TEST);
-
     glDepthFunc(GL_LESS);
-
-
-
+    
     glEnable(GL_LIGHT0);
-
     glEnable(GL_NORMALIZE);
-
     glEnable(GL_COLOR_MATERIAL);
-
     glEnable(GL_LIGHTING);
 
-
-
     glLightfv(GL_LIGHT0, GL_AMBIENT,  light_ambient);
-
     glLightfv(GL_LIGHT0, GL_DIFFUSE,  light_diffuse);
-
     glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
-
-
     glMaterialfv(GL_FRONT, GL_AMBIENT,   mat_ambient);
-
     glMaterialfv(GL_FRONT, GL_DIFFUSE,   mat_diffuse);
-
     glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
-
     glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
-
     ///放在 glutMainLoop()之前
 
-
-
     glutMainLoop();
-
 }
-
 ```
 
 
