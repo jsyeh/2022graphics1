@@ -1501,23 +1501,23 @@ step02-2_畫 3D 模型檔,要把 glutSolidTeapot()改成畫 drawmodel(), 要在�
 ## step03-3
 期中考 OpenGL 必背10函式 模擬練習
 
-```
-jsyeh.org/gl
-是OpenGL的GL
-```
+[jsyeh.org/gl](https://jsyeh.org/gl)
+gl是OpenGL的GL
 
 考試練習：請在下方「淡黃文字區」輸入老師教的 OpenGL必背10函式(11行程式)。 \
 拼字(含大小寫)必須完全正確、參數的數目也需要正確，要合文法、能compile編譯，並記得加中文註解。 \
 完成後，點擊按鈕【按我評分】自行模擬評分
 
-1.  glPushMatrix(); //備份矩陣
-2.    glTranslatef(x,y,z);//移動
-3.    glRotatef(角度, x,y,z);//轉動
-4.    glScalef(x,y,z);//縮放
-5.    glBegin(GL_POLYGON);//開始畫
-6.      glColor3f(r,g,b);//色彩
-7.      glTexCoord2f(tx, ty);//貼圖座標
-8.      glNormal3f( nx,ny,nz);//打光法向量
-9.      glVertex3f(x,y,z);//頂點
-10.   glEnd();//結束畫
-11. glPopMatrix(); //還原矩陣
+```c++
+glPushMatrix(); //備份矩陣
+   glTranslatef(x,y,z);//移動
+   glRotatef(角度, x,y,z);//轉動
+   glScalef(x,y,z);//縮放
+   glBegin(GL_POLYGON);//開始畫
+     glColor3f(r,g,b);//色彩
+     glTexCoord2f(tx, ty);//貼圖座標
+     glNormal3f( nx,ny,nz);//打光法向量
+     glVertex3f(x,y,z);//頂點
+   glEnd();//結束畫
+ glPopMatrix(); //還原矩陣
+```
