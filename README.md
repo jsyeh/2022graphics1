@@ -1548,6 +1548,7 @@ glPushMatrix(); //備份矩陣
 ## step01-2
 1. moodle/teams 下載 opencv 2.1.0 win32 vs2008 (最小、最快安裝、簡單、跨平台)
 2. 安裝時要小心: (1) Add PATH 選第2個, (2) 目錄不要改 C:\OpenCV2.1
+3. PATH 安裝之後,會新增 C:\OpenCV2.1\bin。PATH 是程式執行時,會去找 exe 或 dll 的目錄路徑
 
 ## step02-1
 2行! 寫 OpenCV 讀圖, 秀圖
