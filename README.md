@@ -1521,3 +1521,161 @@ glPushMatrix(); //備份矩陣
    glEnd();//結束畫
  glPopMatrix(); //還原矩陣
 ```
+
+# Week09
+電腦圖學 Week09 2022-04-19
+1. 考試: OpenGL必背10函式
+2. 主題: 貼圖
+3. 實作: OpenCV 讀圖、秀圖
+4. 實作: 貼圖設定
+5. 實作: 貼圖座標
+
+## step01-0
+期中考試: OpenGL必背10函式
+
+在電腦圖學課程中, 我們會教很多主題, 其中最關鍵的10個主題, 與 OpenGL 的 10個函式有關。老師上課時有有依序介紹它們, 並給大家一個模擬考系統, 讓大家可以事先練習。現在, 請在 Moodle裡, 把這10個函式寫出來(含中文的意思), 同時必須注意拼字大小寫、參數的數目等。
+
+註: 寫出來的答案, 會用 jsyeh.org/gl 裡面的系統來評分。
+
+## step01-1
+
+1. jsyeh.org/3dcg10 下載 windows.zip, data.zip source.zip
+2. windows.zip => 下載\windows\Texture.exe
+3. data.zip    => 下載\windows\data\圖檔
+4. Texture.exe 貼圖 
+5. 把blog開起來, 理解、寫一下
+
+## step01-2
+1. moodle/teams 下載 opencv 2.1.0 win32 vs2008 (最小、最快安裝、簡單、跨平台)
+2. 安裝時要小心: (1) Add PATH 選第2個, (2) 目錄不要改 C:\OpenCV2.1
+
+## step02-1
+2行! 寫 OpenCV 讀圖, 秀圖
+
+0. CodeBlocks 要重開 (PATH 安裝完之後, 便會修改 PATH 的設定。)
+1. 寫程式很簡單、BUT設定很困難!!!
+2. File-New-EmptyFile, 存成 week09_opencv.cpp 
+3. 設定很困難: Setting-Compiler 設定 Include 目錄
+4. 設定很困難: Setting-Compiler 設定 Lib 目錄
+5. 設定很困難: Setting-Compiler 咒語 Linker 加 cv210 cxcore210 highgui210
+
+- Search directories 目錄在哪裡!!
+- Compiler 的 Include 目錄 c:\opencv2.1\include
+- Linker 的 Lib 目錄       c:\opencv2.1\lib
+
+```c++
+#include <opencv/highgui.h> //使用 opencv 的外掛
+int main()
+{
+	IplImage * img = cvLoadImage("檔名.png"); //讀圖
+	cvShowImage( "week09", img ); //秀圖
+	cvWaitKey( 0 );//等待任意鍵繼續
+}
+```
+## step03-1 
+1. 結合 OpenCV 和 OpenGL 哦!!!
+2. 。非常複雜、  非常簡單
+3. 。設定/程式碼 用剪貼的
+4. 最簡單的整合: 把 10行GLUT範例 + 3-5行OpenCV讀圖秀圖
+5. 。File-New-Project, GLUT專案 week09_texture 專案
+6. 。寫出10行囉!
+7. 。加入 3-5行 OpenCV 的程式
+8. 。圖檔要放在 工作目錄 (in C:\Users...\freeglut\bin)
+
+- 非常複雜、非常簡單
+- 程式碼    用剪貼的
+
+```c++
+///請自己去剪貼 10行 GLUT範例
+#include <GL/glut.h>
+#include <opencv/highgui.h>
+void myTexture()
+{
+    IplImage * img = cvLoadImage("earth.jpg");
+    cvShowImage("opencv", img);
+    ///cvWaitKey( 0 );///可以不用寫,因為有glutMainLoop()卡住
+}
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glutSolidTeapot( 0.3 );
+    glutSwapBuffers();
+}
+int main( int argc, char**argv )
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE |GLUT_DEPTH);
+    glutCreateWindow("week09 texture");
+
+    glutDisplayFunc(display);
+    myTexture();
+
+    glutMainLoop();
+}
+```
+
+## step03-2
+實作: 貼圖設定
+
+https://gist.github.com/jsyeh/5ed01210559721ec71b659b3ffed2dd7
+
+```c++
+//myTexture.cpp
+#include <opencv/highgui.h> ///使用 OpenCV 2.1 比較簡單, 只要用 High GUI 即可
+#include <opencv/cv.h>
+#include <GL/glut.h>
+int myTexture(char * filename)
+{
+    IplImage * img = cvLoadImage(filename); ///OpenCV讀圖
+    cvCvtColor(img,img, CV_BGR2RGB); ///OpenCV轉色彩 (需要cv.h)
+    glEnable(GL_TEXTURE_2D); ///1. 開啟貼圖功能
+    GLuint id; ///準備一個 unsigned int 整數, 叫 貼圖ID
+    glGenTextures(1, &id); /// 產生Generate 貼圖ID
+    glBindTexture(GL_TEXTURE_2D, id); ///綁定bind 貼圖ID
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); /// 貼圖參數, 超過包裝的範圖T, 就重覆貼圖
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); /// 貼圖參數, 超過包裝的範圖S, 就重覆貼圖
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); /// 貼圖參數, 放大時的內插, 用最近點
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); /// 貼圖參數, 縮小時的內插, 用最近點
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->width, img->height, 0, GL_RGB, GL_UNSIGNED_BYTE, img->imageData);
+    return id;
+}
+```
+
+```c++
+//myTexture_sample.cpp
+#include <opencv/highgui.h> ///使用 OpenCV 2.1 比較簡單, 只要用 High GUI 即可
+#include <opencv/cv.h>
+#include <GL/glut.h>
+int myTexture(char * filename)
+{
+    IplImage * img = cvLoadImage(filename); ///OpenCV讀圖
+    cvCvtColor(img,img, CV_BGR2RGB); ///OpenCV轉色彩 (需要cv.h)
+    glEnable(GL_TEXTURE_2D); ///1. 開啟貼圖功能
+    GLuint id; ///準備一個 unsigned int 整數, 叫 貼圖ID
+    glGenTextures(1, &id); /// 產生Generate 貼圖ID
+    glBindTexture(GL_TEXTURE_2D, id); ///綁定bind 貼圖ID
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); /// 貼圖參數, 超過包裝的範圖T, 就重覆貼圖
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); /// 貼圖參數, 超過包裝的範圖S, 就重覆貼圖
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); /// 貼圖參數, 放大時的內插, 用最近點
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); /// 貼圖參數, 縮小時的內插, 用最近點
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->width, img->height, 0, GL_RGB, GL_UNSIGNED_BYTE, img->imageData);
+    return id;
+}
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glutSolidTeapot( 0.3 );
+    glutSwapBuffers();
+}
+int main(int argc, char**argv)
+{
+    glutInit( &argc, argv );
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
+    glutCreateWindow("week09 texture");
+
+    glutDisplayFunc(display);
+    myTexture("earth.jpg");
+
+    glutMainLoop();
+}
+```
