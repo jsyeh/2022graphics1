@@ -1940,3 +1940,207 @@ void display()
     glutMainLoop();
 }
 ```
+
+# Week11
+電腦圖學 Week11 2022-05-02
+1. 主題: 持續實作 glm 模型相關練習
+2. 主題: 利用 Maya 切割模型
+3. 主題: 對(特定)旋轉軸轉動(下週作業&下下週考試)
+   組合技: T移動、R旋轉、T移動
+   
+## step01-1
+持續實作 glm 模型相關練習: OpenCV讀圖
+
+1. (家裡OK) freeglut裝好 lib\libglut32.a 工作目錄
+2. (家裡OK) OpenCV2.1裝好 小心!! Add PATH C:\OpenCV2.1\bin
+3. (家裡OK) OpenCV 咒語 Setting-Compiler-Search directories目錄 Compiler include目錄
+4. (家裡OK) OpenCV 咒語 Setting-Compiler-Search directories目錄 Linker lib目錄
+5. (家裡OK) OpenCV 咒語 Setting-Compiler-Linker設定 cv210 cxcore210 highgui210
+6. (重開CodeBlocks)File-New-Project, GLUT專案 桌面 week11_gundam (in 工作執行目錄) C:...\桌面\freeglut\bin
+7. 放 myGundam.zip 的模式檔 data裡的檔案 放到 工作執行目錄 freeglut\bin\data\ 裡面
+8. 把 week09_opencv 的範例,拿來用,小心圖檔在哪裡!!!
+```cpp
+#include <opencv/highgui.h>
+int main()
+{
+	IplImage * img = cvLoadImage( "data/Diffuse.jpg" );//gundam的貼圖
+	cvShowImage("week11", img);
+	cvWaitKey(0);
+}
+```
+## step01-2
+持續實作 glm 模型相關練習: 把茶壼貼上Gundam的貼圖
+1. 上面: 上週的 myTexture 放程式
+2. 下面: GLUT 10行程式 放程式
+3. main() 的 glutMainLoop()之前,加入 myTexture( "data/Diffuse.jpg" );
+
+上面: 上週的 myTexture 放程式
+
+```cpp
+#include <opencv/highgui.h> ///使用 OpenCV 2.1 比較簡單, 只要用 High GUI 即可
+#include <opencv/cv.h>
+#include <GL/glut.h>
+int myTexture(char * filename)
+{
+    IplImage * img = cvLoadImage(filename); ///OpenCV讀圖
+    cvCvtColor(img,img, CV_BGR2RGB); ///OpenCV轉色彩 (需要cv.h)
+    glEnable(GL_TEXTURE_2D); ///1. 開啟貼圖功能
+    GLuint id; ///準備一個 unsigned int 整數, 叫 貼圖ID
+    glGenTextures(1, &id); /// 產生Generate 貼圖ID
+    glBindTexture(GL_TEXTURE_2D, id); ///綁定bind 貼圖ID
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); /// 貼圖參數, 超過包裝的範圖T, 就重覆貼圖
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); /// 貼圖參數, 超過包裝的範圖S, 就重覆貼圖
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); /// 貼圖參數, 放大時的內插, 用最近點
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); /// 貼圖參數, 縮小時的內插, 用最近點
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->width, img->height, 0, GL_RGB, GL_UNSIGNED_BYTE, img->imageData);
+    return id;
+}
+```
+
+下面: GLUT 10行程式 放程式
+
+另外 main() 的 glutMainLoop()之前,加入 myTexture( "data/Diffuse.jpg" );
+
+```cpp
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glutSolidTeapot( 0.3 );
+    glutSwapBuffers();
+}
+int main(int argc, char** argv)
+{
+    glutInit( &argc, argv );
+    glutInitDisplayMode( GLUT_DOUBLE | GLUT_DEPTH);
+    glutCreateWindow("week11 gundam");
+
+    glutDisplayFunc(display);
+    myTexture("data/Diffuse.jpg");
+
+    glutMainLoop();
+}
+```
+
+## step02-1
+持續實作 glm 模型相關練習: 把模型 讀進來, 畫出來
+1. 在 jsyeh.org/3dcg10 下載 source.zip (裡面的 glm.h glm.c 還有 transformation.c要拿來參考)
+2. 把 glm.c 改檔名成 glm.cpp (小心副檔名), 把 glm.h glm.cpp 放到 week11_gundam 專案目錄中,當main.cpp的鄰居
+3. 在 week11_gundam 專案中(左邊), Add Files... 加入 glm.cpp 成為 main.cpp 的鄰居
+4. 加入程式碼 (暗示:可參考 transformation.c 的 glm相關程式)
+5. main.cpp 在前面 include 2行
+6. display() 裡 加入好多行
+
+main.cpp 在前面 include 2行
+```cpp
+#include "glm.h"
+GLMmodel * pmodel = NULL; //空指標
+```
+
+display() 裡 加入好多行
+```cpp
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    ///glutSolidTeapot( 0.3 );
+    if( pmodel == NULL ){ //如果是 空指標, 表示模型沒準備好
+        pmodel = glmReadOBJ("data/Gundam.obj"); //就讀模型
+        glmUnitize( pmodel ); //換算成Unit單位大小 -1...+1 
+        glmFacetNormals( pmodel ); //重新計算模型的面的法向量
+        glmVertexNormals( pmodel , 90 ); //重新計算模型的頂點的法向量
+    }
+    glmDraw( pmodel, GLM_TEXTURE ); //有模型後, 畫面,要記得畫貼圖
+    glutSwapBuffers();
+}
+```
+
+
+## step02-2
+發現問題:
+1. 貼圖好像上下倒過來!!! 身體是藍色,腳是白色
+2. 所以,把 data\Diffuse.jpg 用小畫家改一下
+3. 好像模型(前後)被壓扁了...下一個課堂作業,要解決它!!!
+
+## step03-1
+前一節課的程式裡, 模型(前後)被壓扁了, 因為還沒開 3D的前後深度測試
+
+所以需要開啟 3D前後深度測試功能 glEnable(GL_DEPTH_TEST), 最後,我們希望模型可以轉動,所以利用 float angle 配合 angle += 1 及 glutIdleFunc(display) 持續重畫畫面來轉動
+
+1. glEnable(GL_DEPTH_TEST);
+2. 轉起來!!!! glRotatef(angle, 0,1,0);
+3. angle += 1; //每次 display加1度
+4. glutIdleFunc( display );
+
+```cpp
+float angle=0;
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+    if( pmodel == NULL ){ ///如果是 空指標, 表示模型沒準備好
+        pmodel = glmReadOBJ("data/head.obj"); ///就讀模型
+        glmUnitize( pmodel ); ///換算成Unit單位大小 -1...+1
+        glmFacetNormals( pmodel ); ///重新計算模型的面的法向量
+        glmVertexNormals( pmodel , 90 ); ///重新計算模型的頂點的法向量
+    }
+
+    glPushMatrix();
+        glRotatef(angle, 0,1,0);
+        glmDraw( pmodel, GLM_TEXTURE ); ///有模型後, 畫面,要記得畫貼圖
+    glPopMatrix();
+
+    glutSwapBuffers();
+    angle += 1;
+}
+```
+
+## step03-2
+老師利用 YouTube影片示範 Maya 如何匯出OBJ模型檔,同時可調整material,再利用selection來決定如何分割匯出對應的模型
+
+https://www.youtube.com/watch?v=D4a7cNFF9kQ
+如何使用 Maya 匯出 3D模型檔(OBJ)
+
+## step03-3
+最後老師示範T-R-T的技巧,可以將做出特定軸轉動。下週會再教一次,並且有作業、下下週有考試, 強化這個觀念
+
+1. 模仿前一個程式寫法, 也就是讓 angle 可以一直有變化
+2. 簡單的程式, 使用茶壼來畫出 body() 及 hand() 
+3. 重點的地方, 是 glPushMatrix() ... glPopMatrix() 中間, 有 glTranslatef(), glRotatef(), glTranslatef() 這樣的程式架構
+
+```cpp
+#include <GL/glut.h>
+void hand(){
+    glColor3f(0,1,0);
+    glutSolidTeapot( 0.2 );
+}
+void body(){
+    glColor3f(1,1,0);
+    glutSolidTeapot( 0.3 );
+}
+float angle=0;
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    body();
+    glPushMatrix();
+        glTranslatef(0.5, 0.2, 0);
+        glRotatef(angle, 0,0,1);
+        glTranslatef(0.3, 0, 0);
+        hand();
+    glPopMatrix();
+    glutSwapBuffers();
+    angle++;
+}
+int main(int argc, char**argv)
+{
+    glutInit( &argc, argv );
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
+    glutCreateWindow("week11 TRT");
+
+    glutIdleFunc( display );
+    glutDisplayFunc( display );
+
+    glutMainLoop();
+}
+```
+
+
