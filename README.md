@@ -2144,3 +2144,273 @@ int main(int argc, char**argv)
 ```
 
 
+# Week12
+
+## step01-1
+課本範例 Transformation.exe 再看它的變化
+step01-1_利用課本範例,想要搞懂 translate 及 rotate 在不同順序的差別。老師使用畫框框的方法,讓同學可以從小到大,慢慢理解程式。
+
+1. jsyeh.org/3dcg10 下載 windows.zip data.zip
+2. windows.zip => 下載\windows\Transformation.exe
+3. data.zip    => 下載\windows\data\模型
+4. 重點在: 有T移動、有R轉動, 按右鍵 Swap交換 T R
+5. glTranslatef( 0.9 , 0.0 , 0.0 ); 移動
+6. glRotatef( 角度, 0, 1, 0); 旋轉
+
+在右邊 轉動的 藍色車子 (自轉)
+```cpp
+glTranslatef( 0.9 , 0.0 , 0.0 ); 移動 在右邊
+glRotatef( 角度, 0, 1, 0); 旋轉
+畫一台藍色的車子
+```
+
+繞著中間轉彎的車子 (公轉)
+```cpp
+glRotatef( 角度, 0, 1, 0); 旋轉
+glTranslatef( 0.9 , 0.0 , 0.0 ); 移動 在右邊
+畫一台藍色的車子
+```
+
+## step01-2
+step01-2_老師做了一個教學網頁,示範 OpenGL T-R-T 的效果, 網頁可以畫圖、可以旋轉、可以移動程式碼的順序。先讓大家看 glRotatef() 影響身體、影響手臂的狀況
+
+用另一個程式來理解 OpenGL T-R-T函式: 對特定軸轉動練習
+1. 120.125.80.50/GL 有程式 (小心! 不安全, 繼續) 期中考題、小考題
+2. (右下角) 點 ToDraw, 左邊黑色可畫圖
+3. Ctrl-R Reload可清空
+4. 可以畫個身體 叫 myDrawObject(0)
+5. 可以畫個手臂 叫 myDrawObject(1)
+6. 可以改程式碼的順序
+7. 可以按 angle= 再按空白鍵 會自動改變動畫
+
+如果切換動畫時, 下面的手臂會很誇張的轉動
+```cpp
+glPushMatrix();
+	glRotatef(angle, 0, 0, 1);
+	myDrawObject(1);//畫手臂
+glPopMatrix();
+```
+
+下面的程式, 則是手臂與身體都會一起轉動
+```cpp
+glPushMatrix();
+	glRotatef(angle, 0, 0, 1);
+	myDrawObject(1);//畫手臂
+	myDrawObject(0);//畫身體
+glPopMatrix();
+```
+
+下面的程式, 身體會轉動, 手臂會留在原地, 為什麼, 你能理解嗎?
+
+```cpp
+glPushMatrix();
+	myDrawObject(1);//畫手臂
+	glRotatef(angle, 0, 0, 1);
+	myDrawObject(0);//畫身體
+glPopMatrix();
+```
+
+理解的時候, 就使用老師 step01-1 教過的畫框框方法, 從小框框到大框框,慢慢增加程式碼
+
+## step02-1
+step02-1_剛剛的網頁, 繼續加新的功能glTranslate() 目標是讓手臂正確揮手, 身體不要動。我們先把手臂砍下來,把軸心放在世界轉盤的中心, 再把整個世界轉動, 得到長在肚臍的手臂在轉動。最後在上面再加一行移動,把整個轉動的手搬到肩膀掛上去
+1. 把 glTranslatef()那一行,點它,變紅色,便可以移動左邊的東西
+2. 把一個 glTranslatef()放在 Rotatef()的下面、手臂的上面
+3. 另一個 glTranslatef()放在 Rotatef()的上面
+
+經過下面的程式碼, 請想像成把手臂砍下來, 把軸心放在世界轉盤的中心。這時候, 再把整個世界轉動, 便可以看到很變態的、長在肚臍的手臂在轉動。
+
+```cpp
+glPushMatrix();
+	myDrawObject(0);//畫身體
+	glRotatef(angle, 0, 0, 1); //這個旋轉,會轉下面整個東西
+	glTranslatef(-0.3, -0.19, 0);//往左下方移(讓軸心 放世界的中心)
+	myDrawObject(1);//畫手臂 (右上方)
+glPopMatrix();
+```
+
+最後, 把最上面的T擺好、掛到身體的右上角
+
+```cpp
+myDrawObject(0);//畫身體
+glPushMatrix();
+	glTranslatef(0.29, 0.31, 0);//往右上方移(掛到身體的右上角)
+	glRotatef(angle, 0, 0, 1); //這個旋轉,會轉下面整個東西
+	glTranslatef(-0.3, -0.19, 0);//往左下方移(讓軸心 放世界的中心)
+	myDrawObject(1);//畫手臂 (右上方)
+glPopMatrix();
+```
+
+## step02-2
+花了2小時理解今天教的 T-R-T 之後, 老師講解下週的考試題目, 會有一張照片 drawXXX()畫東西, 但是直接旋轉時會發生悲劇, 所以要 (1) 用最下面的T, 把旋轉中心放到正中心, (2) 轉動某個角度, (3) 最上面的T,把整個東西掛在對的位置
+
+
+```cpp
+glPushMatrix();
+  glTranslatef(-0.5, -0.9, 0); //(3)最上面的T,把整個東西掛在對的位置
+  glRotatef(-45, 0,0,1); //(2)轉動某個角度
+  glTranslatef(-0.8, 0.9, 0); //(1)用最下面的T, 把旋轉中心放到正中心
+  drawHand();
+glPopMatrix();
+```
+
+## step02-3
+step02-3_現在開始寫程式。使用剪貼的方式, 把剛剛準備考試的筆記 T-R-T 加到 GLUT 10行程式碼的範例中, 配合上週的自動旋轉, 等一下要把 glTranslatef()裡面的值設定好
+
+現在要寫程式了, 請用剪貼的, 從今天的筆記, 之前的筆記
+1. File-New-Project, GLUT專案, week12_TRT
+2. 把 10行程式碼放上去 (之前的筆記)
+3. 把 T-R-T 的6行放上去 (今天的筆記)
+4. 再讓它會自動轉 float angle=0; 
+5. 配上 glRotatef(angle, 0,0,1); 
+6. 再 angle++
+7. glutIdleFunc( display ); (上週的筆記)
+
+```cpp
+#include <GL/glut.h>
+float angle=0;
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glPushMatrix();
+        ///glTranslatef(0, 0, 0);
+        glRotatef( angle, 0, 0, 1);
+        ///glTransaltef(0, 0, 0);
+        glutSolidTeapot( 0.2 );///想像它是手臂
+    glPopMatrix();
+    glutSwapBuffers();
+    angle++;
+}
+int main( int argc, char** argv )
+{
+    glutInit( &argc, argv );
+    glutInitDisplayMode( GLUT_DOUBLE|GLUT_DEPTH );
+    glutCreateWindow("week12 TRT");
+
+    glutIdleFunc(display);
+    glutDisplayFunc(display);
+    glutMainLoop();
+}
+```
+
+## step03-1
+做出茶壼超人, 有白色的身體, 有紅色的小手臂, 要利用T-R-T讓小手臂對任意軸轉動
+
+```cpp
+#include <GL/glut.h>
+float angle=0;
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glColor3f(1,1,1);///白色
+    glutSolidTeapot( 0.3 );///茶壼當身體
+    glPushMatrix();
+        glTranslatef(0.2, 0, 0);///(3)掛到右邊 (把整個往右移動)
+        glRotatef( angle, 0, 0, 1);///(2)旋轉
+        glTranslatef(0.2, 0, 0); ///(1)把旋轉中心,放到世界中心
+        glColor3f(1,0,0);///紅色的
+        glutSolidTeapot( 0.2 );///小茶壼 想像它是手臂
+    glPopMatrix();
+    glutSwapBuffers();
+    angle++;
+}
+int main( int argc, char** argv )
+{
+    glutInit( &argc, argv );
+    glutInitDisplayMode( GLUT_DOUBLE|GLUT_DEPTH );
+    glutCreateWindow("week12 TRT");
+
+    glutIdleFunc(display);
+    glutDisplayFunc(display);
+    glutMainLoop();
+}
+```
+
+## step03-2
+step03-2_為了寫回家作業, 老師開新的專案 week12_TRT_TRT 給大家看, 裡面將會有上手臂、下手肘。好像大一學程式時的兩層大括號的感覺。
+
+1. 要有 3D模型 (可以自己用Maya建出來, 也可以用網路上找的模型再來裁切), 要有身體、要有上手臂、下手肘
+2. 要用 TRT TRT 做出來
+
+```cpp
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+    glColor3f(1,1,1);///白色
+    glutSolidTeapot( 0.3 );///茶壼當身體
+    glPushMatrix(); ///右邊的手臂、手肘
+        glTranslatef(0.2, 0, 0);///(3)掛到右邊 (把整個往右移動)
+        glRotatef( angle, 0, 0, 1);///(2)旋轉
+        glTranslatef(0.2, 0, 0); ///(1)把旋轉中心,放到世界中心
+        glColor3f(1,0,0);///紅色的
+        glutSolidTeapot( 0.2 );///小茶壼 想像它是手臂
+        glPushMatrix();
+            glTranslatef(0.2, 0, 0);///(3)掛到右邊 (把整個往右移動)
+            glRotatef( angle, 0, 0, 1);///(2)旋轉
+            glTranslatef(0.2, 0, 0); ///(1)把旋轉中心,放到世界中心
+            glColor3f(1,0,0);///紅色的
+            glutSolidTeapot( 0.2 );///小茶壼 想像它是手臂
+        glPopMatrix();
+    glPopMatrix();
+	
+    glutSwapBuffers();
+    angle++;
+}
+```
+
+## step03-3
+step03-3_如果右手臂、右手肘做出來, 其實複製後, 改一下正負號, 可以做出左手邊的手臂、手肘哦
+
+```cpp
+    glPushMatrix(); ///右邊的手臂、手肘
+        glTranslatef(0.2, 0, 0);///(3)掛到右邊 (把整個往右移動)
+        glRotatef( angle, 0, 0, 1);///(2)旋轉
+        glTranslatef(0.2, 0, 0); ///(1)把旋轉中心,放到世界中心
+        glColor3f(1,0,0);///紅色的
+        glutSolidTeapot( 0.2 );///小茶壼 想像它是手臂
+        glPushMatrix();
+            glTranslatef(0.2, 0, 0);///(3)掛到右邊 (把整個往右移動)
+            glRotatef( angle, 0, 0, 1);///(2)旋轉
+            glTranslatef(0.2, 0, 0); ///(1)把旋轉中心,放到世界中心
+            glColor3f(1,0,0);///紅色的
+            glutSolidTeapot( 0.2 );///小茶壼 想像它是手臂
+        glPopMatrix();
+    glPopMatrix();
+
+    glPushMatrix(); ///左邊的手臂、手肘
+        glTranslatef(-0.2, 0, 0);///(3)掛到右邊 (把整個往右移動)
+        glRotatef( -angle, 0, 0, 1);///(2)旋轉
+        glTranslatef(-0.2, 0, 0); ///(1)把旋轉中心,放到世界中心
+        glColor3f(1,0,0);///紅色的
+        glutSolidTeapot( 0.2 );///小茶壼 想像它是手臂
+        glPushMatrix();
+            glTranslatef(-0.2, 0, 0);///(3)掛到右邊 (把整個往右移動)
+            glRotatef( -angle, 0, 0, 1);///(2)旋轉
+            glTranslatef(-0.2, 0, 0); ///(1)把旋轉中心,放到世界中心
+            glColor3f(1,0,0);///紅色的
+            glutSolidTeapot( 0.2 );///小茶壼 想像它是手臂
+        glPopMatrix();
+    glPopMatrix();
+```
+
+
+
+## step03-4
+複習Git指令, 上傳到GitHub
+
+1. 安裝 Git for Windows, 再開啟 Git Bash
+2. 要會改變目錄(change directory), ex. cd desktop 桌面, 有人的電腦的桌面在奇怪的地方(OneDrive,D:,...), 就會進不去
+3. start . 開啟現在的目錄
+4. git clone https://github.com/jsyeh/2022graphics1
+ 可以把你在 GitHub 上面的雲端 clone 複製下來。但是有些人已經複製過,就不能複製第2次 (會有錯誤訊息 already exists), 這時就不用到clone了
+5. cd 2022graphics1 進入你的(倉庫)目錄 (黃色會說明你在哪裡)
+6. git pull 是把雲端拉下來你的硬碟的倉庫
+7. start . 可以開啟現在的目錄, 就可以Ctrl-C Ctrl-V 複製你的程式
+8. git status 看你的倉庫的狀況 (多了2個紅色的目錄)
+9. git add  .  把你目錄中紅色的都加到你的 git帳冊
+10. git status 看你的倉庫的狀況 (多了綠色的一堆東西)
+11. 要 git commit -m "add week12" 確認你的 git帳冊 (不過,如果你之前沒有做過, 那你要 git config --global user.name jsyeh 還有 git config --global user.email jsyeh@mail.mcu.edu.tw 做第1次設定)
+12. git push 推送上雲端
+ 
+
