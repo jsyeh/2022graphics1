@@ -2704,3 +2704,229 @@ void motion(int x, int y){
 
 ## step03-3
 step03-3_今天課程結束。有同學在網路上問到作業要如何用許多的關節轉動, 老師用同學的例子做示範, 先把程式碼重覆的地方用函式來簡化, 接下來便是用今天教的許多TRT來完成身體各關節的轉動。
+
+
+# Week14
+電腦圖學 Week14 2022-05-24
+1. 寫檔、讀檔
+2. 關節、做動畫
+3. 計時器 glutTimerFunc(時間, timer, 參數t)
+4. 播放聲音
+
+## step01-1
+step01-1_為了記錄動畫的動作,我們需要寫檔。fopen()開檔, fprintf()寫檔, fclose()關檔
+
+write 寫檔 File Output (記錄)
+0. File-New-Empty File, 存檔到 week14-1_fprintf 目錄裡的 week14-1.cpp
+1. fopen() 開啟檔案 `FILE * fout = fopen("檔名", "w+");`
+2. printf() => fprintf() File Output
+3. fclose() 關閉檔案
+
+```cpp
+///Week14-1.cpp step01-1
+#include <stdio.h>
+int main()
+{///檔案指標 fout  開啟檔案(檔名, write模式)
+    FILE * fout = fopen("file.txt", "w+");
+     printf(     "Hello World\n");
+    fprintf(fout,"Hello World\n");
+    fclose(fout);///關閉檔案
+}
+```
+
+## step01-2
+step01-2_再加上讀檔,使用fscanf()來讀檔,要小心變數要有&在前面
+
+read 讀檔 File Input 
+0. File-New-EMpty File, 存檔到 week14-2_fprintf_fscanf 目錄裡的 week14-2.cpp
+1. 把剛剛 week14-1.cpp 拿來用
+2. 另外一組  `FILE * fin = fopen("檔名", "r");`
+3. scanf() => fscanf() File Input
+4. fclose()
+
+```cpp
+///Week14-2.cpp step01-2
+#include <stdio.h>
+int main()
+{
+    FILE * fout = fopen("file.txt", "w+");
+    fprintf(fout,"3.1415926\n");
+    fclose(fout);///關閉檔案
+
+    float angle=0;
+    FILE * fin = fopen("file.txt", "r");
+    fscanf(fin, "%f", &angle ); ///沒加&會當掉
+    printf("讀到了角度:%f", angle);
+    fclose(fin);
+}
+```
+
+## step01-3
+step01-3_有了前面檔案的基礎,接下來把上週week13_rect_many_TRT 拿來改裝, 加上寫檔案的功能, 先把FILE指標fout=NULL還沒開啟,在void myWrite()裡面如果fout沒開好,就fopen(),接下來用for迴圈印出20個角度的值(到小黑、也到檔案),我們還沒有fclose()
+
+把上週的程式 week13_rect_many_TRT 拿來改
+0. File-New-Project, GLUT專案 week14_angles_fprintf
+1. 將 week13_rect_many_TRT 的 main.cpp 內容copy過來
+2. 加上 `FILE * fout=NULL;`
+3. 加上 void myWrite() 裡面有fopen() 及 for迴圈裡 fprintf()
+4. 在 motion()裡, 呼叫 myWrite()
+
+```cpp
+///week14_angles_fprintf 改自 week13_rect_many_TRT
+#include <GL/glut.h>
+#include <stdio.h>
+float angle[20], oldX=0;
+int angleID=0;
+FILE * fout = NULL;
+void myWrite(){
+    if( fout == NULL ) fout = fopen("file.txt", "w+");
+
+    for(int i=0; i<20; i++){
+        printf("%.1f ", angle[i] );///小黑印出來
+        fprintf(fout, "%.1f ", angle[i] );///檔案印出來
+    }///這裡老師沒有fclose
+}
+void keyboard(unsigned char key, int x, int y){
+    if( key=='0' ) angleID=0;
+    if( key=='1' ) angleID=1;
+    if( key=='2' ) angleID=2;
+    if( key=='3' ) angleID=3;
+}
+void mouse(int button, int state, int x, int y){
+    oldX = x;
+}
+void motion(int x, int y){
+    angle[angleID] += (x-oldX);
+    myWrite();
+    oldX = x;
+    glutPostRedisplay();///��GLUT���e�e�� Re display
+}
+//下略
+```
+
+## step02-1
+step02-1_又是新的專案。copy前一步程式myWrite()可以寫檔, 現在再加上myRead(), 並且在keyboard()裡如果按下r鍵,就會讀一行資料。一直按著r就會一直讀資料,並且glutPostRedisplay()持續重畫更新
+
+要做動畫囉!!!
+0. File-New-Project, GLUT專案 week14_angles_fprintf_fscanf
+1. copy前一個版本的程式來修改
+2. 要寫 void myRead() 
+3. keyboard()裡, 按下 'r' 呼叫 myRead()
+
+```cpp
+FILE * fout = NULL, * fin = NULL;
+void myWrite(){///每呼叫一次myWrite()
+    if( fout == NULL ) fout = fopen("file.txt", "w+");
+
+    for(int i=0; i<20; i++){
+        printf("%.1f ", angle[i] );///小黑印出來
+        fprintf(fout, "%.1f ", angle[i] );///檔案印出來
+    }///印出20個數字
+    printf("\n");///每呼叫一次, 小黑跳行
+    fprintf(fout, "\n");///每呼叫一次, 檔案也跳行
+}///這裡老師沒有fclose
+void myRead(){
+    if( fout != NULL ) { fclose(fout); fout=NULL; }
+    if( fin == NULL ) fin = fopen("file.txt", "r");
+    for(int i=0; i<20; i++){
+        fscanf(fin, "%f", &angle[i] );
+    }
+    glutPostRedisplay();///重畫畫面
+}
+void keyboard(unsigned char key, int x, int y){
+    if( key=='r' ) myRead();
+    if( key=='0' ) angleID=0;
+    if( key=='1' ) angleID=1;
+    if( key=='2' ) angleID=2;
+    if( key=='3' ) angleID=3;
+}
+```
+
+## step02-2
+step02-2_有同學遇到目錄的問題,所以老師教大家 GLUT專案 freeglut.dll 歷史餘毒的問題, 解釋 What Why How 如何解決, 就是安裝 Notepad++ 後, 便可以修改 .cbp CodeBlocks專案檔, 把裡面的working_dir=右邊雙引號裡改成小數點,就會用專案的這個目錄。只是要記得把桌面的freeglut的bin的freeglut.dll也放到你的專案目錄中
+
+很奇怪, 我們為什麼產生的檔案file.txt放在奇怪的目錄 C:\Users\user\Desktop\freeglut\gin 好奇怪!!! 想要放在程式專案的那個目錄!!
+0. What! 好奇怪!!! file.txt放在奇怪的目錄 
+1. Why? 原來是歷史餘毒 GLUT專案 需要 freeglut.dll 所以 working_dir被設到 freeglut\bin 裡面
+2. How? 在 .cbp CodeBlocks Project 檔裡, 有 working_dir的設定 工作執行的目錄
+3. 使用 Notepad++ 把 .cbp 的 working_dir="....."  改 working_dir="." 小數點
+4. Notepad++存檔後, CodeBlocks Reload它, 便成功了!!!!
+5. 小心 歷史餘毒 freeglut.dll 要再修正, 放到week14_angles_fprintf_fscanf 程式專案的同目錄, 再執行時, 便可以 mouse motion 動動動, 按r重播,而且file.txt 也放在你的程式專案目錄囉!!!
+
+沒裝 Notepad++ 的, 快去下載台灣人 Don Ho 侯今吾先生寫的 Notepad++
+
+## step03-1
+
+glutTimerFunc() 計時器
+```
+rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+rrrrrrrr
+rrrrrrrrrrrrrrrrrrrrrrrrrrr
+rrrrrrrrrrrr
+rrrrrrrrrrrrrrrrrrrr
+rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+要看你的keyboard的速度,每個人的電腦設定會不同!
+```
+0. File-New-Project, GLUT專案 week14_timer
+1. void timer(int t) 寫 timer函式
+2. glutTimerFunc( 等多久, timer, t參數 );
+3. 其他就是 GLUT 的10行程式碼!!
+
+```cpp
+///Week14_timer 每天早晨, 老師 05:50 鬧鐘響
+///起床,閉著眼,再設定 05:53鬧鐘,再睡
+///起床,閉著眼,再設定 05:56鬧鐘,再睡
+///...
+///起床,閉著眼,再設定 07:50鬧鐘...嚇死了..
+#include <GL/glut.h>
+#include <stdio.h>
+void timer(int t){
+    printf("起床,現在時間: %d\n", t);
+}
+void display(){
+}
+int main(int argc, char** argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
+    glutCreateWindow("week14 timer");
+    ///班代一次全部設好,不用那麼麻煩
+    glutTimerFunc(1000, timer, 1);
+    glutTimerFunc(2000, timer, 2);
+    glutTimerFunc(3000, timer, 3);
+    glutTimerFunc(4000, timer, 4);
+    glutTimerFunc(5000, timer, 5);
+    glutDisplayFunc(display);
+    glutMainLoop();
+}
+```
+
+## step03-2
+step03-2_timer最後面其實可再設定下一個timer出現的時機, 便能源源不絕的有timer定時叫起來
+
+期末作品30秒,每秒30格, 900個timer有點麻煩, 程式應該自動一點
+函式呼叫函式, 好像很帥!!! 但再改造一下, 
+
+```cpp
+void timer(int t){
+	printf("我起床囉! %d\n", t);
+	//做我的事
+	glutTimerFunc(1000, timer, t);//要倒下去睡之前, 再設一個鬧鐘
+}
+```
+
+## step03-2
+step03-3_接下來可以在 timer()裡面定時播放聲音哦,只要PlaySound()並事先將do.wav檔準備好, 再include mmsystem.h 便可以順利播放 PlaySound(檔名, NULL, SND_ASYNC);
+
+播放聲音 PlaySound() 請先下載 do.wav
+1. 繼續改 week14_timer_one_by_one 
+2. #include <mmsystem.h>
+3. PlaySound("do.wav", NULL, SND_ASYNC); 
+
+```cpp
+void timer(int t){
+	printf("我起床囉! %d\n", t);
+	PlaySound("do.wav", NULL, SND_ASYNC); 
+	glutTimerFunc(2000, timer, t+1 );
+}
+```
