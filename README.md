@@ -2930,3 +2930,111 @@ void timer(int t){
 	glutTimerFunc(2000, timer, t+1 );
 }
 ```
+
+# Week15
+電腦圖學 Week15 2022-05-31
+1. 播聲音、播MP3
+2. 播放動畫、內插
+3. 機器人擺動作、跳舞
+
+## step01-1
+PlaySound() 更詳細解說
+
+0. File-New-Empty File, 存成 week15-1_PlaySound.cpp
+1. //#include <mmsystem.h> 上週教的
+2. #include <windows.h> 本週改這
+3. //PlaySound( "檔名.wav", NULL, SND_ASYNC);//上週 不等待/不同步
+4. PlaySound( "檔名.wav", NULL, SND_SYNC);//本週, 等待,同步
+5. Setting-Compiler..., Linker Setting 加入 winmm
+5. 注意工作執行目錄 working_dir  (in C:\......)
+
+```cpp
+///Week15-1 PlaySound.cpp
+#include <windows.h>
+#include <stdio.h>
+int main()
+{
+    printf("PlaySound()之前\n");
+    PlaySound("07042111.wav", NULL, SND_SYNC);///檔案不存在,會有很小聲的錯誤聲
+    printf("PlaySound()之後\n");
+}
+```
+
+## step01-2
+PlaySound() 更多參數
+0. File-New-Empty File, 存成 week15-2_SND_SYNC_SND_ASYNC
+1. PlaySound("檔名.wav", NULL, SND_SYNC); 等待同步,結束後才下一行
+2. PlaySound("檔名.wav", NULL, SND_ASYNC); 不等待同步,直接下一行
+3. 
+
+```cpp
+///Week15-2 SND_SYNC SND_ASYNC
+///不用再設定 Setting-Compiler.., Linker 加 winmm 因為加過了
+#include <windows.h>
+#include <stdio.h>
+int main()
+{
+    PlaySound("do.wav", NULL, SND_SYNC);///ASYNC不等待
+    PlaySound("re.wav", NULL, SND_SYNC);///ASYNC不等待
+    PlaySound("mi.wav", NULL, SND_SYNC);///ASYNC不等待
+}///最後一行,就結束/死掉了
+```
+
+## step02-1
+WAV(大/原始) vs. MP3(小/有壓縮) 檔案內容不一定
+PlaySound()只能用大/原始的WAV檔, 只要1行
+
+MP3檔比較麻煩, 很多行。有個好東西送給大家
+Moodle可下載 CMP3_MCI.h
+
+0. File-New-Empty File, week15-3_mp3.cpp
+1. 在 Moodle 下載 CMP3_MCI.h 放在同目錄
+2. 程式碼 #include "CMP3_MCI.h"
+3. 宣告 CMP3_MCI mp3;
+4. mp3.Load("檔名.mp3");
+5. mp3.Play();
+
+```cpp
+#include <stdio.h>
+#include "CMP3_MCI.h" ///記得要下載、放同目錄中
+CMP3_MCI mp3;///宣告變數
+
+int main()
+{
+    mp3.Load("07042111.mp3");
+    mp3.Play();
+
+    printf("隨便等你輸入數字,程式就卡住囉: ");
+    int N;///為了卡住程式不要直接就結束了
+    scanf("%d", &N);
+}
+```
+
+## step02-2
+今天主要都是接續上週的進度, 加強大家印象。接下來是要將動畫相關的動作編輯進行改良。接續上週的 week14_angles_fprintf_fscanf
+
+0. File-New-Project, GLUT專案, week15_angles_TRT_again
+1. copy 上週的程式碼, 改成 week15 並試跑: mouse motion, keyboard '0' '1' '2' '3' 換關節, 最後按 'r' 長按,可慢慢讀入資料
+2. 發現問題: 很不像動畫!! 只是拉某一個關節, 很慢...
+3. myWrite() 會寫一行, myRead()會讀一行
+4. 不能把 myWrite() 放 motion()
+5. 把動作對應的關節全部調好後, 才存(一行)動作
+6. 所以在擺動作時, 擺好後,按 's' 存動作
+7. 執行時,存幾個動作, 'r' 可讀入
+8. 事後在工作執行目錄 file.txt 可以大量copy 動作,重覆,再重新跑程式,動作就多了!!!
+
+## step03-1
+機器人擺動作
+1. 需要 3D Model (glm.h glm.cpp) (.obj .mtl .jpg ...)
+2. 把模型切成很多塊 (因整塊就無法動關節) 分別讀入
+3. TRT 的程式,才能轉動
+4. keyboard() 切換關節, mouse motion() 轉動那一個關節
+
+一步步做
+1. File-New-Project, GLUT專案, week15_hw_gundam_parts
+2. 工作執行目錄 working_dir 不太好, 要改到現在程式的目錄
+3. 使用 Notepad++ 把 week15_hw_gundam_parts.cbp (CodeBlocks Project) 改裡面的 working_dir
+4. 要把 glm.h glm.cpp 及 gundam 的 data目錄,全部放在你的程式目錄
+5. 在 CodeBlocks 左邊的專案,加入 Add glm.cpp
+6. 開始將 舊程式中的cvRectf()方塊, 逐一變成 3D模型。
+7. 重點在, 要小心 T-R-T 的2個T的值是否正確 (需要一點經驗, 才能熟練地調好)
