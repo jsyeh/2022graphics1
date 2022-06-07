@@ -3038,3 +3038,182 @@ int main()
 5. 在 CodeBlocks 左邊的專案,加入 Add glm.cpp
 6. 開始將 舊程式中的cvRectf()方塊, 逐一變成 3D模型。
 7. 重點在, 要小心 T-R-T 的2個T的值是否正確 (需要一點經驗, 才能熟練地調好)
+
+
+# Week16
+
+## step01-1
+step01-1_利用Excel來把alpha內插公式實作出來, 讓大家看到新的、舊的資料可以做內插
+
+alpha內插公式: alpha: `0.0~1.0`
+
+`angle = alpha*新 + (1-alpha)*舊`
+ex.
+- alpha: 0  => 舊
+- alpha:0.5 => 半新半舊
+- alpha: 1  => 新
+使用 Excel or Google Spreadsheet 來做練習
+
+## step01-2
+step01-2_將上週的程式改造成有alpha內插的版本,按下'p'可以逐步進行內插, 必要時刻要把新的變舊的、再讀新的資料
+
+用程式試試看 week15_angles_TRT_again 拿來改
+1. File-New-Project, GLUT, week16_interpolation 內插
+2. 複製程式,執行,按s存1行, mouse motion改動作4次,按s存檔
+3. 原本失敗的結果, 按r會讀到動作,不連續, 關掉
+
+接下來,要改造程式
+1. void myInterplate(float alpha) 
+2. 使用 for迴圈來改變20個關節的角度值
+3. 計算出 alpha 值後, 便可以利用 `angle[i] = alpha * NewAngle[i] + (1-alpha) * NewAngle[i];`
+4. 要修改 myRead() 裡面先把新的變舊的 `OldAngle[i] = NewAngle[i];` 再從檔案讀入新的角度 `fscanf(fin, "%f", &NewAngle[i] );`
+
+```cpp
+float NewAngle[20], OldAngle[20];
+void myRead(){
+    if( fout != NULL ) { fclose(fout); fout=NULL; }
+    if( fin == NULL ) fin = fopen("file.txt", "r");
+    for(int i=0; i<20; i++){
+        OldAngle[i] = NewAngle[i]; ///原來的新的,變舊
+        fscanf(fin, "%f", &NewAngle[i] );///讀到新的角度
+        ///fscanf(fin, "%f", &angle[i] );
+    }
+    glutPostRedisplay();///重畫畫面
+}
+void myInterpolate(float alpha){
+    for(int i=0; i<20; i++){
+        angle[i] = alpha * NewAngle[i] + (1-alpha) * OldAngle[i];
+    }
+}
+int t=0;
+void keyboard(unsigned char key, int x, int y){
+    if( key=='p' ){///Play
+        if(t%30==0) myRead();
+        myInterpolate(  (t%30)/30.0  ); ///介於 0.0~1.0
+        glutPostRedisplay();
+        t++;
+    }
+    if( key=='s' ) myWrite();///調好動作,才Save存檔
+    if( key=='r' ) myRead();
+    if( key=='0' ) angleID=0;
+    if( key=='1' ) angleID=1;
+    if( key=='2' ) angleID=2;
+    if( key=='3' ) angleID=3;
+}
+```
+
+## step02-1
+step02-1_剛剛的myInterpolate()改成在 timer()裡面呼叫, 便能讓內插的動作更簡單運作。
+
+```cpp
+///int t=0;
+void timer(int t){
+    if( t%50==0 ) myRead();
+    myInterpolate( (t%50)/50.0 );
+    glutPostRedisplay();
+    glutTimerFunc( 20, timer, t+1 );
+}
+void keyboard(unsigned char key, int x, int y){
+    if( key=='p' ){///Play
+        myRead();
+        glutTimerFunc( 0, timer, 0 );
+        ///if(t%30==0) myRead();
+        ///myInterpolate(  (t%30)/30.0  ); ///介於 0.0~1.0
+        ///glutPostRedisplay();
+        ///t++;
+    }
+    if( key=='s' ) myWrite();///調好動作,才Save存檔
+    if( key=='r' ) myRead();
+    if( key=='0' ) angleID=0;
+    if( key=='1' ) angleID=1;
+    if( key=='2' ) angleID=2;
+    if( key=='3' ) angleID=3;
+}
+```
+
+## step02-2
+step02-2_利用課本的範例 Projection.exe ,講解gluLookAt(眼睛座標、看哪裡、up向量)
+
+## step03-1
+
+step03-1_我們參考CodeBlocks GLUT範例,參考glutReshapeFunc()設定一個視窗可依長寬比來調整aspect ratio 在 gluPerspective()的參數, 並配合gluLookAt()函式來調整視角
+
+1. File-New-Project, GLUT, week16_camera_projection_gluLookAt
+2. 備份177行範例, 要改造裡面的程式
+3. aspect ratio 長寬比 ex. 1920x1080, 1280x720, 640x480, 16:9, 4:3
+
+```cpp
+#include <GL/glut.h>
+void reshape(int w, int h){///不能 整數除
+    float ar = (float) w / (float) h;
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);///3D變2D
+    glLoadIdentity();
+    gluPerspective(60, ar, 0.1, 100);
+
+    glMatrixMode(GL_MODELVIEW);///3D Model+View
+    glLoadIdentity() ;
+    gluLookAt(0, 0, 3, ///eye
+              0, 0, 0, ///center看哪裡
+              0, 1, 0);///up向量
+}
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glutSolidTeapot(1);
+    glutSwapBuffers();
+}
+int main(int argc, char** argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE|GLUT_DEPTH);
+    glutCreateWindow("week16 camera");
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);///範例是用resize
+    glutMainLoop();
+}
+```
+
+## step03-2
+step03-2_利用motion()來修改 gluLookAt()的eye位置, 看到從不同地方看茶壼的效果。期末作品如果有了這個功能,會很帥氣,因為可以運鏡.
+
+```cpp
+#include <GL/glut.h>
+void reshape(int w, int h){///不能 整數除
+    float ar = (float) w / (float) h;
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);///3D變2D
+    glLoadIdentity();
+    gluPerspective(60, ar, 0.1, 100);
+
+    glMatrixMode(GL_MODELVIEW);///3D Model+View
+    glLoadIdentity() ;
+    gluLookAt(0, 0, 3, ///eye
+              0, 0, 0, ///center看哪裡
+              0, 1, 0);///up向量
+}
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glutSolidTeapot(1);
+    glutSwapBuffers();
+}
+void motion(int x, int y){///新加的
+    glMatrixMode(GL_MODELVIEW);///3D Model+View
+    glLoadIdentity() ;
+    gluLookAt((x-150)/150.0, (y-150)/150.0, 3, ///eye
+              0, 0, 0, ///center看哪裡
+              0, 1, 0);///up向量
+    glutPostRedisplay();///請重畫畫面
+}
+int main(int argc, char** argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE|GLUT_DEPTH);
+    glutCreateWindow("week16 camera");
+    glutMotionFunc(motion);///新加的
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);///範例是用resize
+    glutMainLoop();
+}
+```
