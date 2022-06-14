@@ -3217,3 +3217,44 @@ int main(int argc, char** argv)
     glutMainLoop();
 }
 ```
+
+# Week17
+電腦圖學 Week17 2022-06-14
+1. 期末作品繳交方式
+2. 期末作品評分方式
+3. 網友問 push matrix 和 pop matrix 事件
+4. 整學期大複習-示範期末作品怎麼做
+## step01
+介紹 Moodle 繳交期末作品的3個檔案, 其中圖檔會變成 slido 手機投票的縮圖。下下週上課時, 請用電腦 Teams 分享桌面, 再用 
+
+## step02
+老師想要示範如何完成期末作品,一步步慢慢來。
+不要改別人的程式, 因為會改不出來。
+(貼別人的程式 倒是還不錯) 5-10行
+
+2022電腦圖學 Computer Graphics 授課教師: 葉正聖 銘傳大學資訊傳播工程系 每週主題: 程式環境、點線面顏色、移動/旋轉/縮放與矩陣(Matrix)、階層性關節轉動(T-R-T)、做出機器人、打光、貼圖、glu/glut函式、鍵盤、滑鼠、計時器(timer)、讀入3D模型、粒子系統、聲音、特效、投影矩陣、攝影機與運鏡、機器人2.0、期末作品
+
+
+程式環境: Week01(freeglut,GLUT專案), Week10(OpenCV的設定), Week16(改 CBP 的 working_dir)
+
+點線面顏色: 10行程式碼  display() main()前3行設定, 最後一行glutMainLoop()
+
+打光: 8行 + 10多行
+
+讀入3D模型:  模型在工作目錄, glm.h glm.cpp 加進去 #include "glm.h" 再 GLMmodel * body; 再...
+
+貼圖: OpenCV 及 myTexture範例, 還有圖 而且畫 glmDraw(pmodel, GLM_TEXTURE | GLM_SMOOTH);
+
+攝影機與運鏡: 透視投影法 gluPerspective,配上 glutReshapeFunc() 再上 gluLookAt()
+
+兩張貼圖: Gundam, 木紋, 宣告2個整數 GLuint tex1, tex2; 在 main() 裡 
+tex1 = myTexture("data/Diffuse.jpg"); 
+tex2 = myTexture("data/wood.png");
+在 display() 裡
+glBindTexture(GL_TEXTURE_2D, tex1) 及 glBindTexture(GL_TEXTURE_2D, tex2) 來切換
+
+把全部的模型讀入: 改寫 myReadGundam()改成 myReadOne() 及 myReadAll();
+
+TRT: 必須要有中心點 才能把每個部位放好, 才能正確轉,才能掛在對的地方
+可以使用 mouse motion 來知道值在哪裡
+要經常註解程式,才能找到 T-R-T 的值
